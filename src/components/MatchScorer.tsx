@@ -69,17 +69,44 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
 
   const availableBowlers = bowlingSquad;
 
+  const getLastCompletedOverBowler = (): string | null => {
+    if (!innings || !match.ballHistory) return null;
+    const currentOver = Math.floor(innings.balls / 6);
+    if (currentOver === 0) return null;
+
+    for (let i = match.ballHistory.length - 1; i >= 0; i--) {
+      const entry = match.ballHistory[i];
+      if (entry.overNum === currentOver - 1) {
+        return entry.bowler;
+      }
+    }
+    return null;
+  };
+
   const handleSelectBatsman = (type: "striker" | "nonstriker", name: string) => {
     if (type === "striker") {
+      if (name === nonStrikerName && name !== "") {
+        alert("The striker cannot be the same as the non-striker.");
+        return;
+      }
       setStrikerName(name);
       addBatsmanToScorecard(name);
     } else {
+      if (name === strikerName && name !== "") {
+        alert("The non-striker cannot be the same as the striker.");
+        return;
+      }
       setNonStrikerName(name);
       addBatsmanToScorecard(name);
     }
   };
 
   const handleSelectBowler = (name: string) => {
+    const lastBowler = getLastCompletedOverBowler();
+    if (lastBowler && name === lastBowler && name !== "") {
+      alert(`The bowler "${name}" just bowled the previous over. A bowler cannot bowl consecutive overs!`);
+      return;
+    }
     setBowlerName(name);
     addBowlerToScorecard(name);
   };
@@ -632,7 +659,7 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
                       onChange={(e) => handleSelectBatsman("striker", e.target.value)}
                     >
                       <option value="">Select Striker</option>
-                      {availableBatsmen.map(name => <option key={name} value={name}>{name}</option>)}
+                      {availableBatsmen.filter(name => name !== nonStrikerName).map(name => <option key={name} value={name}>{name}</option>)}
                     </select>
                   )}
                 </div>
@@ -652,7 +679,7 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
                       onChange={(e) => handleSelectBatsman("nonstriker", e.target.value)}
                     >
                       <option value="">Select Non Strk</option>
-                      {availableBatsmen.map(name => <option key={name} value={name}>{name}</option>)}
+                      {availableBatsmen.filter(name => name !== strikerName).map(name => <option key={name} value={name}>{name}</option>)}
                     </select>
                   )}
                 </div>
@@ -672,7 +699,7 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
                       onChange={(e) => handleSelectBowler(e.target.value)}
                     >
                       <option value="">Select Bowler</option>
-                      {availableBowlers.map(name => <option key={name} value={name}>{name}</option>)}
+                      {availableBowlers.filter(name => name !== getLastCompletedOverBowler()).map(name => <option key={name} value={name}>{name}</option>)}
                     </select>
                   )}
                 </div>
@@ -762,22 +789,70 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
             </div>
           )}
 
-          {/* Current Ball-by-ball timeline of current over */}
-          <div className="bg-brand-surface p-3 border border-soft rounded-xl space-y-2">
-            <span className="text-[9px] uppercase font-bold text-slate-450 tracking-wider font-mono">Ball timeline log queue</span>
-            <div className="flex flex-wrap gap-1.5 pt-0.5 font-mono">
-              {match.ballHistory.slice(-12).map((b, idx) => (
-                <div
-                  key={idx}
-                  title={b.description}
-                  className={`min-w-7 h-7 rounded border flex items-center justify-center font-bold text-[10px] select-none ${b.isWicket ? "bg-rose-600/20 text-rose-300 border-rose-500/30" : b.extrasType ? "bg-sky-655/20 text-sky-400 border-sky-500/20" : b.runs === 4 || b.runs === 6 ? "bg-sky-500/20 text-sky-400 border-sky-500/30" : "bg-slate-950 text-slate-400 border-soft"}`}
-                >
-                  {b.isWicket ? "W" : b.extrasType === "wide" ? `WD` : b.extrasType === "noball" ? `NB` : b.extrasType === "bye" ? `${b.extraRuns}B` : b.extrasType === "legbye" ? `${b.extraRuns}L` : b.runs === 0 ? "•" : b.runs}
-                </div>
-              ))}
-              {match.ballHistory.length === 0 && (
-                <span className="text-[10px] text-slate-550 italic">Pre-play match setup. Deliver first ball to start timeline.</span>
-              )}
+          {/* Current Ball-by-ball timeline grouped by over */}
+          <div className="bg-brand-surface p-3.5 border border-soft rounded-xl space-y-3">
+            <span className="text-[9px] uppercase font-bold text-slate-450 tracking-wider font-mono block">Over-by-Over Ball Timeline</span>
+            <div className="space-y-2.5">
+              {(() => {
+                // Group the balls by overNum
+                const oversMap: { [key: number]: typeof match.ballHistory } = {};
+                match.ballHistory.forEach((ball) => {
+                  const ovStr = ball.overNum;
+                  if (!oversMap[ovStr]) {
+                    oversMap[ovStr] = [];
+                  }
+                  oversMap[ovStr].push(ball);
+                });
+
+                const sortedOverNums = Object.keys(oversMap).map(Number).sort((a, b) => a - b);
+
+                if (sortedOverNums.length === 0) {
+                  return (
+                    <div className="text-[10px] text-slate-500 italic">
+                      Pre-play match setup. Deliver first ball to start timeline.
+                    </div>
+                  );
+                }
+
+                return sortedOverNums.map((ov) => {
+                  const balls = oversMap[ov];
+                  // Calculate total runs in this over
+                  const overRuns = balls.reduce((total, b) => total + b.runs + b.extraRuns, 0);
+                  const isCurrentOver = ov === Math.floor((innings?.balls || 0) / 6);
+                  return (
+                    <div key={ov} className={`flex items-center gap-3 p-2 rounded-lg border ${isCurrentOver ? 'bg-sky-950/25 border-sky-500/25' : 'bg-slate-950/40 border-soft/50'}`}>
+                      <div className="shrink-0 flex flex-col min-w-[55px]">
+                        <span className="text-[10px] font-extrabold text-slate-300 font-mono">OVER {ov + 1}</span>
+                        <span className="text-[9px] text-slate-500 font-mono">{overRuns} runs</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5 items-center">
+                        {balls.map((b, bIdx) => (
+                          <div
+                            key={bIdx}
+                            title={b.description}
+                            className={`min-w-7 h-7 rounded border flex items-center justify-center font-bold text-[10px] select-none ${
+                              b.isWicket 
+                                ? "bg-rose-500/20 text-rose-300 border-rose-500/40" 
+                                : b.extrasType 
+                                  ? "bg-amber-500/20 text-amber-300 border-amber-500/30" 
+                                  : b.runs === 4 
+                                    ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40" 
+                                    : b.runs === 6 
+                                      ? "bg-sky-500/20 text-sky-300 border-sky-450/40" 
+                                      : "bg-slate-900 text-slate-400 border-soft"
+                            }`}
+                          >
+                            {b.isWicket ? "W" : b.extrasType === "wide" ? "WD" : b.extrasType === "noball" ? "NB" : b.extrasType === "bye" ? `${b.extraRuns}B` : b.extrasType === "legbye" ? `${b.extraRuns}L` : b.runs === 0 ? "•" : b.runs}
+                          </div>
+                        ))}
+                      </div>
+                      <span className="text-[9px] text-slate-450 ml-auto font-mono max-w-[150px] truncate text-right hidden sm:block">
+                        Bowler: {balls[0]?.bowler || "Unknown"}
+                      </span>
+                    </div>
+                  );
+                });
+              })()}
             </div>
           </div>
 
