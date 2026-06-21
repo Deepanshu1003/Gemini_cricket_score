@@ -177,10 +177,10 @@ export default function MatchControlCenter({ userId, externalSelectedMatchId, on
     <div id="match-scoring-center">
       {/* Sub tabs navigation */}
       {activeTab !== "score" && (
-        <div className="flex border-b border-slate-700/80 mb-6 gap-2">
+        <div className="flex border-b border-soft mb-6 gap-2">
           <button
             onClick={() => setActiveTab("list")}
-            className={`px-5 py-3 font-bold text-sm border-b-2 transition ${activeTab === "list" ? "border-emerald-500 text-emerald-400" : "border-transparent text-slate-400 hover:text-slate-200"}`}
+            className={`px-5 py-3 font-extrabold text-xs uppercase tracking-wider border-b-2 transition ${activeTab === "list" ? "border-sky-500 text-sky-400" : "border-transparent text-slate-400 hover:text-slate-200"}`}
           >
             Match Fixtures ({matches.length})
           </button>
@@ -189,7 +189,7 @@ export default function MatchControlCenter({ userId, externalSelectedMatchId, on
               setActiveTab("create");
               setErrorText("");
             }}
-            className={`px-5 py-3 font-bold text-sm border-b-2 transition ${activeTab === "create" ? "border-emerald-500 text-emerald-400" : "border-transparent text-slate-400 hover:text-slate-200"}`}
+            className={`px-5 py-3 font-extrabold text-xs uppercase tracking-wider border-b-2 transition ${activeTab === "create" ? "border-sky-500 text-sky-400" : "border-transparent text-slate-400 hover:text-slate-200"}`}
           >
             + Create New Fixture / Match
           </button>
@@ -197,7 +197,7 @@ export default function MatchControlCenter({ userId, externalSelectedMatchId, on
       )}
 
       {errorText && (
-        <div className="bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm p-3 rounded-lg mb-6 max-w-lg">
+        <div className="bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs p-3 rounded-lg mb-6 max-w-lg font-mono">
           {errorText}
         </div>
       )}
@@ -205,12 +205,12 @@ export default function MatchControlCenter({ userId, externalSelectedMatchId, on
       {activeTab === "list" && (
         <div className="space-y-6">
           {loading ? (
-            <div className="text-center py-12 text-slate-400">Loading matchups...</div>
+            <div className="text-center py-12 text-slate-400 font-mono text-xs">Loading matchups...</div>
           ) : matches.length === 0 ? (
-            <div className="bg-slate-800/20 border border-slate-700 py-16 rounded-xl text-center text-slate-400 max-w-xl mx-auto mt-6">
-              <Swords className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-              <p className="font-semibold text-lg">No cricket matches scheduled yet</p>
-              <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">Create players/teams and then hit the "+" tab above to schedule local tournament games!</p>
+            <div className="bg-brand-surface border border-soft py-16 rounded-xl text-center text-slate-400 max-w-xl mx-auto mt-6">
+              <Swords className="w-12 h-12 text-slate-650 mx-auto mb-3" />
+              <p className="font-extrabold text-lg">No cricket matches scheduled yet</p>
+              <p className="text-xs text-slate-500 mt-1.5 max-w-sm mx-auto">Create players/teams and then hit the "+" tab above to schedule local tournament games!</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -220,39 +220,39 @@ export default function MatchControlCenter({ userId, externalSelectedMatchId, on
                   <div
                     key={m.id}
                     onClick={() => handleSelectMatch(m)}
-                    className="bg-slate-800/40 hover:bg-slate-800/70 border border-slate-700/60 p-5 rounded-2xl transition cursor-pointer flex flex-col justify-between group h-full"
+                    className="bg-brand-surface border border-soft hover:bg-slate-800/50 p-4 rounded-xl transition cursor-pointer flex flex-col justify-between group h-full shadow-lg relative overflow-hidden"
                   >
                     <div>
                       {/* Match Status Strip */}
-                      <div className="flex items-center justify-between mb-4">
-                        <span className={`text-[10px] uppercase font-extrabold tracking-wider px-2 py-0.5 rounded-full border ${m.status === "completed" ? "bg-slate-700/20 text-slate-400 border-slate-700" : m.status === "live" ? "bg-rose-500/10 text-rose-400 border-rose-500/20 animate-pulse" : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"}`}>
+                      <div className="flex items-center justify-between mb-3">
+                        <span className={`text-[9px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded border ${m.status === "completed" ? "bg-slate-855 text-slate-400 border-soft" : m.status === "live" ? "bg-sky-500/10 text-sky-400 border-sky-500/20 animate-pulse" : "bg-slate-800 text-slate-400 border-soft"}`}>
                           {m.status}
                         </span>
-                        <div className="flex items-center gap-1.5 text-xs text-slate-500 font-mono">
+                        <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-mono font-bold">
                           <Calendar className="w-3.5 h-3.5" />
                           {new Date(m.createdAt).toLocaleDateString()}
                         </div>
                       </div>
 
                       {/* Opponents and Runs display */}
-                      <div className="space-y-3 mt-2">
+                      <div className="space-y-2 mt-2">
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-slate-100">{m.teamAName}</span>
+                          <span className="font-bold text-sm text-slate-100">{m.teamAName}</span>
                           {m.status !== "scheduled" && m.innings1 && (
-                            <span className="font-extrabold text-base text-emerald-400 font-sans">
+                            <span className="font-bold text-sm text-sky-400 font-mono">
                               {m.innings1.runs} / {m.innings1.wickets} <span className="text-[10px] text-slate-500 font-mono">({Math.floor(m.innings1.balls/6)}.{m.innings1.balls%6} ov)</span>
                             </span>
                           )}
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-slate-100">{m.teamBName}</span>
+                          <span className="font-bold text-sm text-slate-100">{m.teamBName}</span>
                           {m.status === "completed" && m.innings2 && (
-                            <span className="font-extrabold text-base text-emerald-400 font-sans">
+                            <span className="font-bold text-sm text-sky-400 font-mono">
                               {m.innings2.runs} / {m.innings2.wickets} <span className="text-[10px] text-slate-500 font-mono">({Math.floor(m.innings2.balls/6)}.{m.innings2.balls%6} ov)</span>
                             </span>
                           )}
                           {m.status === "live" && m.currentInnings === 2 && m.innings2 && (
-                            <span className="font-extrabold text-base text-emerald-400 font-sans">
+                            <span className="font-bold text-sm text-sky-400 font-mono">
                               {m.innings2.runs} / {m.innings2.wickets} <span className="text-[10px] text-slate-500 font-mono">({Math.floor(m.innings2.balls/6)}.{m.innings2.balls%6} ov)</span>
                             </span>
                           )}
@@ -260,41 +260,41 @@ export default function MatchControlCenter({ userId, externalSelectedMatchId, on
                       </div>
 
                       {/* Tournament indicator & outcomes */}
-                      <div className="mt-4 pt-3 border-t border-slate-700/30 flex items-center justify-between">
+                      <div className="mt-3 pt-2.5 border-t border-soft flex items-center justify-between">
                         <div>
                           {m.tournamentName ? (
-                            <div className="flex items-center gap-1 text-[11px] font-semibold text-lime-400">
-                              <Trophy className="w-3 h-3" /> {m.tournamentName}
+                            <div className="flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wide text-sky-400">
+                              <Trophy className="w-3.5 h-3.5" /> {m.tournamentName}
                             </div>
                           ) : (
                             <span className="text-[10px] text-slate-500 italic">Friendly Match</span>
                           )}
                         </div>
-                        <span className="text-xs text-slate-400 font-mono">{m.overs} Overs Match</span>
+                        <span className="text-[10px] text-slate-400 font-mono">{m.overs} Overs Match</span>
                       </div>
                     </div>
 
                     {/* Footer outcomes info */}
-                    <div className="mt-4 pt-3 border-t border-slate-700/30 flex items-center justify-between">
+                    <div className="mt-3 pt-2.5 border-t border-soft flex items-center justify-between">
                       {m.resultSummary ? (
                         <p className="text-xs text-amber-300 font-bold italic line-clamp-1 flex-1">{m.resultSummary}</p>
                       ) : m.status === "live" ? (
-                        <p className="text-xs text-rose-400 font-black tracking-wide animate-pulse flex-grow flex items-center gap-1.5"><Play className="w-3.5 h-3.5 fill-rose-400" /> LIVE INNINGS {totalInnings}</p>
+                        <p className="text-xs text-sky-400 font-black tracking-wide animate-pulse flex-grow flex items-center gap-1.5"><Play className="w-3.5 h-3.5 fill-sky-400" /> LIVE INNINGS {totalInnings}</p>
                       ) : (
-                        <p className="text-xs text-slate-400 italic">Scheduled - Scorer setup ready</p>
+                        <p className="text-xs text-slate-500 italic font-mono uppercase tracking-wide">Scheduled - Score setup ready</p>
                       )}
                       
                       <div className="flex items-center gap-2 ml-4">
                         {m.createdBy === userId && (
                           <button
                             onClick={(e) => handleDeleteMatch(m.id, e)}
-                            className="p-1.5 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 transition cursor-pointer"
+                            className="p-1.5 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-450 hover:text-rose-350 transition cursor-pointer border border-transparent hover:border-soft"
                             title="Delete Match Record"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         )}
-                        <span className="text-xs font-bold text-emerald-400 group-hover:underline flex items-center gap-0.5 shrink-0">
+                        <span className="text-xs font-bold text-sky-400 group-hover:underline flex items-center gap-0.5 shrink-0">
                           {m.status === "completed" ? "Scorecard" : "Score Match"} <ArrowUpRight className="w-3 h-3" />
                         </span>
                       </div>
@@ -308,19 +308,19 @@ export default function MatchControlCenter({ userId, externalSelectedMatchId, on
       )}
 
       {activeTab === "create" && (
-        <div className="bg-slate-800/60 p-6 rounded-2xl border border-slate-700 max-w-3xl">
+        <div className="bg-brand-surface p-5 rounded-xl border border-soft max-w-3xl shadow-2xl">
           <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-            <Swords className="w-5 h-5 text-emerald-400" /> Schedule Amateur Matchup
+            <Swords className="w-5 h-5 text-sky-400" /> Schedule Amateur Matchup
           </h2>
 
-          <form onSubmit={handleCreateMatch} className="space-y-6">
+          <form onSubmit={handleCreateMatch} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
                   Team A (Home Squad)
                 </label>
                 <select
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg py-2.5 px-3 text-slate-200 text-sm focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-slate-950/80 border border-soft rounded-lg py-2 px-3 text-slate-200 text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 font-sans"
                   value={teamAId}
                   onChange={(e) => {
                     setTeamAId(e.target.value);
@@ -336,7 +336,7 @@ export default function MatchControlCenter({ userId, externalSelectedMatchId, on
                   <button
                     type="button"
                     onClick={() => setActiveTab("list")}
-                    className="text-xs text-emerald-400 font-bold underline mt-1.5"
+                    className="text-xs text-sky-400 font-bold underline mt-1.5"
                   >
                     Please register custom teams in Teams tab first
                   </button>
@@ -344,11 +344,11 @@ export default function MatchControlCenter({ userId, externalSelectedMatchId, on
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
                   Team B (Away Squad)
                 </label>
                 <select
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg py-2.5 px-3 text-slate-200 text-sm focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-slate-950/80 border border-soft rounded-lg py-2 px-3 text-slate-200 text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 font-sans"
                   value={teamBId}
                   onChange={(e) => setTeamBId(e.target.value)}
                 >
@@ -362,25 +362,25 @@ export default function MatchControlCenter({ userId, externalSelectedMatchId, on
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
                   Overs Count (Legitimate Overs)
                 </label>
                 <input
                   type="number"
                   min={1}
                   max={50}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 px-3 text-slate-200 text-sm focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-slate-950/80 border border-soft rounded-lg py-1.5 px-3 text-slate-200 text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 font-mono font-bold"
                   value={overs}
                   onChange={(e) => setOvers(parseInt(e.target.value) || 20)}
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
                   Toss Winner
                 </label>
                 <select
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg py-2.5 px-2 text-slate-200 text-sm"
+                  className="w-full bg-slate-950/80 border border-soft rounded-lg py-2 px-2 text-slate-200 text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 font-sans"
                   value={tossWinner}
                   onChange={(e) => setTossWinner(e.target.value)}
                 >
@@ -391,11 +391,11 @@ export default function MatchControlCenter({ userId, externalSelectedMatchId, on
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
                   Toss Choice
                 </label>
                 <select
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg py-2.5 px-2 text-slate-200 text-sm"
+                  className="w-full bg-slate-950/80 border border-soft rounded-lg py-2 px-2 text-slate-200 text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 font-sans"
                   value={tossDecision}
                   onChange={(e) => setTossDecision(e.target.value as "bat" | "bowl")}
                 >
@@ -407,11 +407,11 @@ export default function MatchControlCenter({ userId, externalSelectedMatchId, on
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
                   Link with Live Tournament (Optional)
                 </label>
                 <select
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg py-2.5 px-3 text-slate-200 text-sm focus:outline-none"
+                  className="w-full bg-slate-950/80 border border-soft rounded-lg py-2 px-3 text-slate-200 text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 font-sans"
                   value={selectedTourneyId}
                   onChange={(e) => setSelectedTourneyId(e.target.value)}
                 >
@@ -423,7 +423,7 @@ export default function MatchControlCenter({ userId, externalSelectedMatchId, on
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
                   Scorer Security PIN (Optional)
                 </label>
                 <div className="relative">
@@ -433,7 +433,7 @@ export default function MatchControlCenter({ userId, externalSelectedMatchId, on
                   <input
                     type="password"
                     maxLength={6}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 pl-9 pr-3 text-slate-200 text-sm placeholder-slate-600 focus:outline-none"
+                    className="w-full bg-slate-950/80 border border-soft rounded-lg py-1.5 pl-9 pr-3 text-slate-200 text-sm placeholder-slate-650 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 font-mono"
                     placeholder="e.g. 1234 (Anyone can edit if blank)"
                     value={scorerPin}
                     onChange={(e) => setScorerPin(e.target.value.replace(/\D/g,""))}
@@ -444,7 +444,7 @@ export default function MatchControlCenter({ userId, externalSelectedMatchId, on
 
             <button
               type="submit"
-              className="w-full bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-slate-950 font-bold py-3 rounded-lg transition shadow-lg shadow-emerald-500/10 cursor-pointer"
+              className="w-full bg-sky-600 hover:bg-sky-500 text-white font-extrabold text-sm py-2.5 rounded-lg transition border border-sky-450/20 shadow-lg shadow-sky-900/20 cursor-pointer"
             >
               Launch Live Scorecard / Match
             </button>

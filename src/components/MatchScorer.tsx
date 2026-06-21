@@ -527,28 +527,28 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
     <div id="match-scorer-dashboard" className="space-y-6">
       {/* Verify Scorer Pin if needed */}
       {!isScorerAuthorized() && (
-        <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 text-center space-y-4 max-w-md mx-auto">
-          <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto" />
-          <h2 className="text-lg font-bold text-white">Security PIN Requested</h2>
-          <p className="text-xs text-slate-400">This match has been locked. Enter the 4-6 digit PIN to start scoring scoreboards.</p>
+        <div className="bg-brand-surface p-5 rounded-xl border border-soft text-center space-y-4 max-w-sm mx-auto shadow-xl">
+          <AlertTriangle className="w-10 h-10 text-sky-500 mx-auto" />
+          <h2 className="text-base font-extrabold text-white">Security PIN Requested</h2>
+          <p className="text-[11px] text-slate-400">This match is score-locked. Enter the scorer PIN code below to continue registering plays.</p>
           <input
             type="password"
             maxLength={6}
-            className="w-full text-center bg-slate-900 border border-slate-700 text-xl font-bold py-2 rounded-lg text-amber-300 focus:outline-none"
-            placeholder="PIN"
+            className="w-full text-center bg-slate-950 border border-soft text-xl font-bold font-mono py-2 rounded-lg text-sky-455 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 placeholder-slate-705"
+            placeholder="• • • •"
             value={pinInput}
             onChange={(e) => setPinInput(e.target.value.replace(/\D/g,""))}
           />
-          <div className="flex gap-2 pt-2">
+          <div className="flex gap-2 pt-1">
             <button
               onClick={onBack}
-              className="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-300 py-2 rounded-lg text-sm cursor-pointer"
+              className="flex-1 bg-brand-action hover:bg-slate-750 border border-soft text-slate-300 py-1.5 rounded text-xs font-bold cursor-pointer"
             >
               Back
             </button>
             <button
               onClick={handleVerifyPin}
-              className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2 rounded-lg text-sm cursor-pointer"
+              className="flex-1 bg-sky-600 hover:bg-sky-500 text-white font-extrabold py-1.5 rounded text-xs cursor-pointer"
             >
               Verify PIN
             </button>
@@ -558,76 +558,76 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
 
       {/* Main Scoring Board (Visible if authorized) */}
       {isScorerAuthorized() && innings && (
-        <div className="space-y-6">
+        <div className="space-y-5">
           {/* Header Controls */}
-          <div className="flex items-center justify-between border-b border-slate-700 pb-4">
+          <div className="flex items-center justify-between border-b border-soft pb-3.5">
             <button
               onClick={onBack}
-              className="flex items-center gap-1 text-slate-400 hover:text-white font-bold text-sm cursor-pointer"
+              className="flex items-center gap-1.5 text-slate-400 hover:text-white font-bold text-xs uppercase tracking-wider cursor-pointer"
             >
-              <ArrowLeft className="w-4 h-4" /> Back to Match center
+              <ArrowLeft className="w-3.5 h-3.5" /> Back to Match center
             </button>
 
             <div className="flex items-center gap-2">
-              <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold border ${match.status === "completed" ? "bg-slate-800 text-slate-400 border-slate-700" : "bg-rose-500/20 text-rose-300 border-rose-500/30"}`}>
-                {match.status.toUpperCase()}
+              <span className={`text-[9px] px-2 py-0.5 rounded font-bold font-mono border uppercase tracking-wider ${match.status === "completed" ? "bg-slate-900 text-slate-400 border-soft" : "bg-rose-500/10 text-rose-350 border-rose-500/20"}`}>
+                {match.status}
               </span>
               <button
                 onClick={() => setShowFullScorecard(!showFullScorecard)}
-                className="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1"
+                className="bg-brand-action hover:bg-slate-755 text-slate-200 text-xs px-3 py-1.5 border border-soft rounded font-bold transition cursor-pointer flex items-center gap-1.5"
               >
-                <FileSpreadsheet className="w-4 h-4" /> {showFullScorecard ? "Hide Full Scorecard" : "View Scorecard"}
+                <FileSpreadsheet className="w-4 h-4 text-sky-400" /> {showFullScorecard ? "Hide Full Scorecard" : "View Scorecard"}
               </button>
             </div>
           </div>
 
           {/* Quick Score card summary banner */}
-          <div className="bg-gradient-to-br from-slate-800 via-slate-800 to-emerald-900/20 p-6 rounded-2xl border border-slate-700 flex flex-col md:flex-row justify-between items-center gap-4 relative overflow-hidden">
-            <div className="absolute right-0 top-0 text-[100px] font-black text-white/5 pointer-events-none tracking-tighter select-none">
-              OVERS
+          <div className="bg-brand-surface p-4 rounded-xl border border-soft flex flex-col md:flex-row justify-between items-center gap-4 relative overflow-hidden shadow-lg">
+            <div className="absolute right-3 top-[-10px] text-5xl font-black text-white/[0.03] pointer-events-none font-mono tracking-tighter select-none">
+              LIVE SCORECARD
             </div>
             <div>
-              <span className="text-[10px] uppercase font-extrabold tracking-widest text-emerald-400">Innings {activeInningsNum} - Batting: {innings.battingTeam}</span>
-              <div className="flex items-baseline gap-2 mt-2">
-                <span className="text-5xl font-black text-white">{innings.runs}</span>
-                <span className="text-3xl font-bold text-slate-400">/</span>
-                <span className="text-4xl font-extrabold text-rose-400">{innings.wickets}</span>
+              <span className="text-[9px] uppercase font-bold tracking-widest text-sky-400 font-mono">Innings {activeInningsNum} - Batting: {innings.battingTeam}</span>
+              <div className="flex items-baseline gap-1.5 mt-1.5">
+                <span className="text-4xl font-extrabold text-white font-mono leading-none tracking-tight">{innings.runs}</span>
+                <span className="text-2xl font-bold text-slate-550 font-mono">/</span>
+                <span className="text-3.5xl font-black text-rose-455 font-mono leading-none">{innings.wickets}</span>
               </div>
-              <p className="text-xs text-slate-400 font-mono mt-2">
+              <p className="text-[10px] text-slate-400 font-mono mt-1.5">
                 Overs: {ballsToOvers(innings.balls)} / {match.overs}
               </p>
             </div>
 
             {/* Target and Chase text for Second innings */}
             {activeInningsNum === 2 && match.innings1 && (
-              <div className="bg-slate-900/60 p-4 border border-slate-700/60 rounded-xl text-center md:text-right shrink-0">
-                <span className="text-[10px] block uppercase text-slate-400 font-bold">Target Chase</span>
-                <span className="text-2xl font-black text-amber-300">Need {Math.max(0, (match.innings1.runs + 1) - innings.runs)} runs</span>
-                <span className="block text-xs text-slate-500 mt-1">from {Math.max(0, (match.overs * 6) - innings.balls)} balls remaining</span>
+              <div className="bg-slate-950/65 p-3.5 py-2.5 border border-soft/80 rounded-lg text-center md:text-right shrink-0">
+                <span className="text-[9px] block uppercase text-slate-450 font-bold tracking-wider">Target Chase</span>
+                <span className="text-xl font-extrabold text-sky-400 font-mono">Need {Math.max(0, (match.innings1.runs + 1) - innings.runs)} runs</span>
+                <span className="block text-[10px] text-slate-500 mt-0.5 font-mono">from {Math.max(0, (match.overs * 6) - innings.balls)} balls remaining</span>
               </div>
             )}
           </div>
 
           {/* Scoring Controls panel (Only if match is live/scheduled and we are in current innings) */}
           {match.status !== "completed" && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
               {/* Squad selections striker, non striker, bowler */}
-              <div className="bg-slate-800/60 p-5 rounded-2xl border border-slate-700 space-y-4">
-                <h3 className="font-extrabold text-white text-sm uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-700 pb-2">
-                  <UserPlus className="w-4 h-4 text-emerald-400" /> Active Roster Setup
+              <div className="bg-brand-surface p-4 rounded-xl border border-soft space-y-3.5 shadow-lg">
+                <h3 className="font-extrabold text-white text-[11px] uppercase tracking-wider flex items-center gap-1.5 border-b border-soft pb-2">
+                  <UserPlus className="w-4 h-4 text-sky-400" /> Active Roster Setup
                 </h3>
 
                 {/* Striker selector */}
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Striker (Active Bat)</label>
+                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Striker (Active Bat)</label>
                   {strikerName ? (
-                    <div className="bg-slate-900 px-3 py-2 rounded-lg border border-emerald-500/30 flex items-center justify-between">
-                      <span className="text-sm font-extrabold text-white">{strikerName} ★</span>
-                      <button onClick={() => setStrikerName("")} className="text-[10px] hover:underline text-rose-400 cursor-pointer">Change</button>
+                    <div className="bg-slate-950/80 px-3 py-1.5 rounded-lg border border-sky-450/35 flex items-center justify-between">
+                      <span className="text-xs font-bold text-white">{strikerName} ★</span>
+                      <button onClick={() => setStrikerName("")} className="text-[9px] font-bold uppercase tracking-wide hover:underline hover:text-sky-400 text-slate-500 cursor-pointer">Change</button>
                     </div>
                   ) : (
                     <select
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 px-3 text-sm text-slate-200"
+                      className="w-full bg-slate-950/80 border border-soft rounded-lg py-1.5 px-2.5 text-xs text-slate-200 font-sans focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
                       value={strikerName}
                       onChange={(e) => handleSelectBatsman("striker", e.target.value)}
                     >
@@ -639,15 +639,15 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
 
                 {/* Non Striker selector */}
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Non Striker</label>
+                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Non Striker</label>
                   {nonStrikerName ? (
-                    <div className="bg-slate-900 px-3 py-2 rounded-lg border border-slate-700 flex items-center justify-between">
-                      <span className="text-sm font-medium text-slate-300">{nonStrikerName}</span>
-                      <button onClick={() => setNonStrikerName("")} className="text-[10px] hover:underline text-rose-400 cursor-pointer">Change</button>
+                    <div className="bg-slate-950/80 px-3 py-1.5 rounded-lg border border-soft flex items-center justify-between">
+                      <span className="text-xs font-semibold text-slate-300">{nonStrikerName}</span>
+                      <button onClick={() => setNonStrikerName("")} className="text-[9px] font-bold uppercase tracking-wide hover:underline hover:text-sky-400 text-slate-500 cursor-pointer">Change</button>
                     </div>
                   ) : (
                     <select
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 px-3 text-sm text-slate-200"
+                      className="w-full bg-slate-950/80 border border-soft rounded-lg py-1.5 px-2.5 text-xs text-slate-200 font-sans focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
                       value={nonStrikerName}
                       onChange={(e) => handleSelectBatsman("nonstriker", e.target.value)}
                     >
@@ -659,15 +659,15 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
 
                 {/* Bowler selector */}
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Current Bowler</label>
+                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Current Bowler</label>
                   {bowlerName ? (
-                    <div className="bg-slate-900 px-3 py-2 rounded-lg border border-slate-700 flex items-center justify-between">
-                      <span className="text-sm font-semibold text-teal-400">{bowlerName} 🥎</span>
-                      <button onClick={() => setBowlerName("")} className="text-[10px] hover:underline text-rose-400 cursor-pointer">Change</button>
+                    <div className="bg-slate-950/80 px-3 py-1.5 rounded-lg border border-soft flex items-center justify-between">
+                      <span className="text-xs font-bold font-mono text-sky-400">{bowlerName} 🥎</span>
+                      <button onClick={() => setBowlerName("")} className="text-[9px] font-bold uppercase tracking-wide hover:underline hover:text-sky-400 text-slate-500 cursor-pointer">Change</button>
                     </div>
                   ) : (
                     <select
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 px-3 text-sm text-slate-200 animate-pulse border-amber-500/50"
+                      className="w-full bg-slate-950/80 border border-soft rounded-lg py-1.5 px-2.5 text-xs text-slate-200 font-sans focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 animate-pulse"
                       value={bowlerName}
                       onChange={(e) => handleSelectBowler(e.target.value)}
                     >
@@ -682,50 +682,50 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
                   type="button"
                   onClick={handleSwapStrike}
                   title="Manually switch strike in batsman mismatch"
-                  className="w-full bg-slate-900 hover:bg-slate-900/60 border border-slate-700 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 text-slate-300 cursor-pointer"
+                  className="w-full bg-slate-950/75 hover:bg-slate-800 border border-soft py-1.5 rounded text-[10px] font-bold flex items-center justify-center gap-1.5 text-slate-300 transition cursor-pointer"
                 >
-                  <RotateCw className="w-3.5 h-3.5 text-amber-500" /> Swap Batting Strike
+                  <RotateCw className="w-3 h-3 text-sky-450" /> Swap Batting Strike
                 </button>
               </div>
 
               {/* Core Clicker scoring buttons */}
-              <div className="lg:col-span-2 bg-slate-800/60 p-5 rounded-2xl border border-slate-700 flex flex-col justify-between">
+              <div className="lg:col-span-2 bg-brand-surface p-4 rounded-xl border border-soft flex flex-col justify-between shadow-lg">
                 <div>
-                  <h3 className="font-extrabold text-white text-sm uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-700 pb-2 mb-4">
-                    <Swords className="w-4 h-4 text-emerald-400" /> Scorer keypad panels
+                  <h3 className="font-extrabold text-white text-[11px] uppercase tracking-wider flex items-center gap-1.5 border-b border-soft pb-2 mb-3.5">
+                    <Swords className="w-4 h-4 text-sky-400" /> Scorer keypad panels
                   </h3>
 
                   {!strikerName || !nonStrikerName || !bowlerName ? (
-                    <div className="bg-slate-900/60 rounded-xl p-8 border border-amber-500/10 text-center space-y-2">
-                      <AlertTriangle className="w-8 h-8 text-amber-500 mx-auto" />
-                      <p className="font-semibold text-slate-200">Scoring Paused</p>
-                      <p className="text-xs text-slate-500 max-w-sm mx-auto">Please assign an active striker, non-striker, and bowler in the roster setup to unlock scoring controls.</p>
+                    <div className="bg-slate-950/45 rounded-lg p-6 border border-soft text-center space-y-1.55">
+                      <AlertTriangle className="w-6 h-6 text-sky-500 mx-auto" />
+                      <p className="font-bold text-xs text-slate-205">Scoring Controls Locked</p>
+                      <p className="text-[10px] text-slate-500 max-w-sm mx-auto">Please assign an active striker, non-striker, and bowler in the roster setup to unlock scoring controls.</p>
                     </div>
                   ) : (
-                    <div className="space-y-4">
+                    <div className="space-y-3.5">
                       {/* Runs keys */}
-                      <p className="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Normal Runs</p>
-                      <div className="grid grid-cols-4 md:grid-cols-7 gap-2.5">
+                      <p className="text-[9px] text-slate-500 uppercase font-extrabold tracking-widest font-mono">Normal runs scoring</p>
+                      <div className="grid grid-cols-4 md:grid-cols-7 gap-2">
                         {[0, 1, 2, 3, 4, 5, 6].map((num) => (
                           <button
                             key={num}
                             onClick={() => recordRuns(num)}
-                            className="bg-slate-900 border border-slate-700 hover:bg-emerald-500 hover:text-slate-950 hover:border-emerald-500 text-slate-100 font-black py-4 rounded-xl text-lg transition duration-150 cursor-pointer flex items-center justify-center"
+                            className="bg-slate-950/80 border border-soft hover:bg-sky-600 hover:text-white hover:border-sky-550 text-slate-200 font-extrabold font-mono py-2.5 rounded transition duration-150 cursor-pointer flex items-center justify-center text-sm"
                           >
-                            {num === 0 ? "• Dot" : num}
+                            {num === 0 ? "Dot" : num}
                           </button>
                         ))}
                       </div>
 
                       {/* Specialist keys */}
-                      <div className="grid grid-cols-2 gap-3 pt-3">
+                      <div className="grid grid-cols-2 gap-2 pt-2">
                         <button
                           onClick={() => {
                             setWicketType("bowled");
                             setDismissedBatsman(strikerName);
                             setShowWicketModal(true);
                           }}
-                          className="bg-rose-950/40 hover:bg-rose-950/80 border border-rose-500/40 text-rose-300 font-extrabold py-3.5 rounded-xl transition duration-150 cursor-pointer text-sm flex items-center justify-center gap-1"
+                          className="bg-rose-950/30 hover:bg-rose-900/40 border border-rose-500/20 text-rose-300 font-bold py-2 rounded-lg transition duration-155 cursor-pointer text-xs flex items-center justify-center gap-1 font-mono uppercase tracking-wider"
                         >
                           Wicket Dismissal +
                         </button>
@@ -735,9 +735,9 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
                             setExtraBoundaryRuns(0);
                             setShowExtraModal(true);
                           }}
-                          className="bg-sky-950/40 hover:bg-sky-950/80 border border-sky-500/40 text-sky-300 font-extrabold py-3.5 rounded-xl transition duration-150 cursor-pointer text-sm flex items-center justify-center gap-1"
+                          className="bg-sky-950/30 hover:bg-sky-900/40 border border-sky-500/20 text-sky-355 font-bold py-2 rounded-lg transition duration-155 cursor-pointer text-xs flex items-center justify-center gap-1 font-mono uppercase tracking-wider"
                         >
-                          Record Extras / Sundries +
+                          Record Extras +
                         </button>
                       </div>
                     </div>
@@ -745,16 +745,16 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
                 </div>
 
                 {/* Over completions & innings ender */}
-                <div className="mt-6 pt-4 border-t border-slate-700/30 flex items-center justify-between text-xs">
-                  <div className="text-slate-400">
-                    Overs format: {Math.floor(innings.balls / 6)} overs and {innings.balls % 6} balls
+                <div className="mt-4 pt-3 border-t border-soft flex items-center justify-between text-[10px]">
+                  <div className="text-slate-450 font-mono">
+                    Overs format: {Math.floor(innings.balls / 6)} ov and {innings.balls % 6} balls
                   </div>
                   {activeInningsNum === 1 && (
                     <button
                       onClick={handleSwitchInnings}
-                      className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-4 py-2 rounded-lg transition overflow-hidden text-xs cursor-pointer inline-flex items-center gap-1"
+                      className="bg-sky-600 hover:bg-sky-500 text-white font-extrabold px-3 py-1.5 rounded transition text-xs cursor-pointer inline-flex items-center gap-1 shadow-lg"
                     >
-                      Switch Innings (Chase target) &rarr;
+                      Switch Innings (Chase) &rarr;
                     </button>
                   )}
                 </div>
@@ -763,39 +763,39 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
           )}
 
           {/* Current Ball-by-ball timeline of current over */}
-          <div className="bg-slate-800/40 p-4 border border-slate-700/80 rounded-xl space-y-2">
-            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Ball timeline log queue</span>
-            <div className="flex flex-wrap gap-2 pt-1 font-sans">
+          <div className="bg-brand-surface p-3 border border-soft rounded-xl space-y-2">
+            <span className="text-[9px] uppercase font-bold text-slate-450 tracking-wider font-mono">Ball timeline log queue</span>
+            <div className="flex flex-wrap gap-1.5 pt-0.5 font-mono">
               {match.ballHistory.slice(-12).map((b, idx) => (
                 <div
                   key={idx}
                   title={b.description}
-                  className={`min-w-8 h-8 rounded-full border flex items-center justify-center font-bold text-xs select-none ${b.isWicket ? "bg-rose-600/20 text-rose-400 border-rose-500/40" : b.extrasType ? "bg-sky-600/20 text-sky-400 border-sky-500/30" : b.runs === 4 || b.runs === 6 ? "bg-amber-500/20 text-amber-300 border-amber-500/30 font-blackScale" : "bg-slate-900 text-slate-400 border-slate-800"}`}
+                  className={`min-w-7 h-7 rounded border flex items-center justify-center font-bold text-[10px] select-none ${b.isWicket ? "bg-rose-600/20 text-rose-300 border-rose-500/30" : b.extrasType ? "bg-sky-655/20 text-sky-400 border-sky-500/20" : b.runs === 4 || b.runs === 6 ? "bg-sky-500/20 text-sky-400 border-sky-500/30" : "bg-slate-950 text-slate-400 border-soft"}`}
                 >
                   {b.isWicket ? "W" : b.extrasType === "wide" ? `WD` : b.extrasType === "noball" ? `NB` : b.extrasType === "bye" ? `${b.extraRuns}B` : b.extrasType === "legbye" ? `${b.extraRuns}L` : b.runs === 0 ? "•" : b.runs}
                 </div>
               ))}
               {match.ballHistory.length === 0 && (
-                <span className="text-xs text-slate-500 italic">Pre-play match setup. Deliever first ball to start timeline.</span>
+                <span className="text-[10px] text-slate-550 italic">Pre-play match setup. Deliver first ball to start timeline.</span>
               )}
             </div>
           </div>
 
           {/* Scorecard Tab Lists Toggle */}
           {(showFullScorecard || match.status === "completed") && (
-            <div className="bg-slate-800/60 p-6 rounded-2xl border border-slate-700/80 space-y-8">
+            <div className="bg-brand-surface p-4 rounded-xl border border-soft space-y-5">
               {/* Selector Innings tabs */}
-              <div className="flex border-b border-slate-700 mb-4 gap-2">
+              <div className="flex border-b border-soft mb-2 gap-1.5">
                 <button
                   onClick={() => setActiveInningsTab(1)}
-                  className={`px-4 py-2 font-bold text-xs transition border-b-2 ${activeInningsTab === 1 ? "border-emerald-500 text-emerald-400" : "border-transparent text-slate-400 hover:text-slate-200"}`}
+                  className={`px-3 py-1.5 font-extrabold text-[10px] uppercase tracking-wider transition border-b-2 ${activeInningsTab === 1 ? "border-sky-500 text-sky-400" : "border-transparent text-slate-450 hover:text-slate-205"}`}
                 >
                   Innings 1: {match.innings1?.battingTeam || "Home"}
                 </button>
                 {match.innings2?.battingTeam && (
                   <button
                     onClick={() => setActiveInningsTab(2)}
-                    className={`px-4 py-2 font-bold text-xs transition border-b-2 ${activeInningsTab === 2 ? "border-emerald-500 text-emerald-400" : "border-transparent text-slate-400 hover:text-slate-200"}`}
+                    className={`px-3 py-1.5 font-extrabold text-[10px] uppercase tracking-wider transition border-b-2 ${activeInningsTab === 2 ? "border-sky-500 text-sky-400" : "border-transparent text-slate-455 hover:text-slate-205"}`}
                   >
                     Innings 2: {match.innings2?.battingTeam}
                   </button>
@@ -816,15 +816,15 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
 
       {/* DISMISSAL WICKET POPUP MODAL */}
       {showWicketModal && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-slate-800 border border-slate-750 p-6 rounded-2xl max-w-md w-full space-y-4">
-            <h3 className="font-extrabold text-lg text-rose-400 border-b border-slate-705 pb-2">Record Out Batsman</h3>
+        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+          <div className="bg-brand-surface border border-soft p-5 rounded-xl max-w-sm w-full space-y-4 shadow-xl">
+            <h3 className="font-extrabold text-sm text-rose-450 border-b border-soft pb-1.5 uppercase tracking-wider font-mono">Record Out Batsman</h3>
 
-            <div className="space-y-4 text-sm text-slate-200">
+            <div className="space-y-3.5 text-xs text-slate-200">
               <div>
-                <label className="block text-xs font-semibold text-slate-450 mb-1">Dismissal Type</label>
+                <label className="block text-[10px] font-bold text-slate-450 mb-1 uppercase tracking-wider font-mono">Dismissal Type</label>
                 <select
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 px-3 text-slate-200"
+                  className="w-full bg-slate-950 border border-soft rounded-lg py-1.5 px-3 text-slate-200 text-xs focus:outline-none focus:border-sky-500 font-sans"
                   value={wicketType}
                   onChange={(e) => setWicketType(e.target.value)}
                 >
@@ -839,9 +839,9 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-450 mb-1">Batsman Dismissed</label>
+                <label className="block text-[10px] font-bold text-slate-450 mb-1 uppercase tracking-wider font-mono">Batsman Dismissed</label>
                 <select
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 px-3 text-slate-200"
+                  className="w-full bg-slate-950 border border-soft rounded-lg py-1.5 px-3 text-slate-200 text-xs focus:outline-none focus:border-sky-500 font-sans"
                   value={dismissedBatsman}
                   onChange={(e) => setDismissedBatsman(e.target.value)}
                 >
@@ -852,9 +852,9 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
 
               {(wicketType === "caught" || wicketType === "runout" || wicketType === "stumped") && (
                 <div>
-                  <label className="block text-xs font-semibold text-slate-450 mb-1">Fielder Involved Name</label>
+                  <label className="block text-[10px] font-bold text-slate-455 mb-1 uppercase tracking-wider font-mono">Fielder Involved Name</label>
                   <select
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 px-3 text-slate-200"
+                    className="w-full bg-slate-950 border border-soft rounded-lg py-1.5 px-3 text-slate-200 text-xs focus:outline-none focus:border-sky-500 font-sans"
                     value={fielderName}
                     onChange={(e) => setFielderName(e.target.value)}
                   >
@@ -865,18 +865,18 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
               )}
             </div>
 
-            <div className="flex gap-2 pt-4">
+            <div className="flex gap-2 pt-2">
               <button
                 onClick={() => setShowWicketModal(false)}
-                className="flex-1 bg-slate-700 hover:bg-slate-650 text-slate-300 font-bold py-2 rounded-lg cursor-pointer text-xs"
+                className="flex-1 bg-brand-action hover:bg-slate-755 text-slate-350 border border-soft py-1.5 rounded-lg text-xs font-bold cursor-pointer font-mono"
               >
                 Cancel
               </button>
               <button
                 onClick={handleRecordWicket}
-                className="flex-1 bg-rose-500 hover:bg-rose-600 text-slate-950 font-black py-2 rounded-lg cursor-pointer text-xs"
+                className="flex-1 bg-rose-600 hover:bg-rose-500 text-white font-extrabold py-1.5 rounded-lg cursor-pointer text-xs uppercase tracking-wider"
               >
-                Submit Out Dismissal
+                Confirm Out
               </button>
             </div>
           </div>
@@ -885,20 +885,20 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
 
       {/* RECORD EXTRAS POPUP MODAL */}
       {showExtraModal && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-slate-800 border border-slate-750 p-6 rounded-2xl max-w-md w-full space-y-4">
-            <h3 className="font-extrabold text-lg text-sky-400 border-b border-slate-705 pb-2">Record Extras / Sundries</h3>
+        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-xs flex items-center justify-center p-4 z-50 font-sans">
+          <div className="bg-brand-surface border border-soft p-5 rounded-xl max-w-sm w-full space-y-4 shadow-xl">
+            <h3 className="font-extrabold text-sm text-sky-455 border-b border-soft pb-1.5 uppercase tracking-wider font-mono">Record Extras</h3>
 
-            <div className="space-y-4 text-sm text-slate-200">
+            <div className="space-y-3.5 text-xs text-slate-200">
               <div>
-                <label className="block text-xs font-semibold text-slate-450 mb-1">Extras Type</label>
-                <div className="grid grid-cols-2 gap-2">
+                <label className="block text-[10px] font-bold text-slate-450 mb-1.5 uppercase tracking-wider font-mono">Extras Type</label>
+                <div className="grid grid-cols-2 gap-2 font-sans">
                   {(["wide", "noball", "bye", "legbye"] as const).map((t) => (
                     <button
                       type="button"
                       key={t}
                       onClick={() => setExtraType(t)}
-                      className={`py-2 rounded-lg border font-bold text-xs uppercase tracking-wider transition cursor-pointer ${extraType === t ? "bg-sky-500/10 border-sky-400 text-sky-350" : "bg-slate-900 border-slate-700 text-slate-400 hover:bg-slate-800"}`}
+                      className={`py-1.5 rounded border font-bold text-[10px] uppercase tracking-wider transition cursor-pointer ${extraType === t ? "bg-sky-500/10 border-sky-450 text-sky-400 shadow-sm" : "bg-slate-950 border-soft text-slate-450 hover:bg-slate-800"}`}
                     >
                       {t === "noball" ? "No Ball" : t === "legbye" ? "Leg Bye" : t}
                     </button>
@@ -907,14 +907,14 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-450 mb-1.5">Additional Conceded Runs (E.g. byed boundaries)</label>
-                <div className="grid grid-cols-5 gap-1.5">
+                <label className="block text-[10px] font-bold text-slate-450 mb-1.5 uppercase tracking-wider font-mono">Additional Conceded Runs (E.g. byed boundaries)</label>
+                <div className="grid grid-cols-5 gap-1.5 font-sans">
                   {[0, 1, 2, 3, 4].map((num) => (
                     <button
                       type="button"
                       key={num}
                       onClick={() => setExtraBoundaryRuns(num)}
-                      className={`py-2 font-bold rounded-lg border text-xs cursor-pointer ${extraBoundaryRuns === num ? "bg-amber-500/10 border-amber-500 text-amber-300" : "bg-slate-900 border-slate-700 text-slate-400 hover:bg-slate-800"}`}
+                      className={`py-1.5 font-bold font-mono rounded border text-xs cursor-pointer ${extraBoundaryRuns === num ? "bg-sky-500/10 border-sky-450 text-sky-400" : "bg-slate-950 border-soft text-slate-405 hover:bg-slate-800"}`}
                     >
                       +{num}
                     </button>
@@ -923,16 +923,16 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
               </div>
             </div>
 
-            <div className="flex gap-2 pt-4">
+            <div className="flex gap-2 pt-2">
               <button
                 onClick={() => setShowExtraModal(false)}
-                className="flex-1 bg-slate-700 hover:bg-slate-650 text-slate-300 font-bold py-2 rounded-lg cursor-pointer text-xs"
+                className="flex-1 bg-brand-action hover:bg-slate-755 text-slate-355 border border-soft py-1.5 rounded-lg cursor-pointer text-xs font-bold font-mono"
               >
                 Close
               </button>
               <button
                 onClick={handleRecordExtras}
-                className="flex-1 bg-sky-550 bg-sky-500 hover:bg-sky-600 text-slate-950 font-black py-2 rounded-lg cursor-pointer text-xs"
+                className="flex-1 bg-sky-600 hover:bg-sky-500 text-white font-extrabold py-1.5 rounded-lg cursor-pointer text-xs uppercase tracking-wider"
               >
                 Add Extras
               </button>
@@ -947,28 +947,28 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
 // Innings Detailed scorecard sub-component
 function ScorecardTable({ inningsData }: { inningsData: InningsState }) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Batting Card table */}
       <div>
-        <h4 className="text-white font-extrabold text-sm mb-3 uppercase tracking-wider text-emerald-400">Batting Card</h4>
+        <h4 className="text-white font-extrabold text-xs mb-2 uppercase tracking-wider text-sky-405 font-mono">Batting Card</h4>
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs divide-y divide-slate-700/50">
+          <table className="w-full text-left text-[11px] divide-y divide-soft/50">
             <thead>
-              <tr className="text-slate-400 font-bold uppercase tracking-wider">
-                <th className="py-2.5">Batsman</th>
-                <th className="py-2.5">Status</th>
-                <th className="py-2.5 text-center">Runs</th>
-                <th className="py-2.5 text-center">Balls</th>
-                <th className="py-2.5 text-center">4s</th>
-                <th className="py-2.5 text-center">6s</th>
-                <th className="py-2.5 text-right">SR</th>
+              <tr className="text-slate-450 font-bold uppercase tracking-wider text-[9px] font-mono">
+                <th className="py-2">Batsman</th>
+                <th className="py-2">Status</th>
+                <th className="py-2 text-center">Runs</th>
+                <th className="py-2 text-center font-mono text-[9px]">Balls</th>
+                <th className="py-2 text-center">4s</th>
+                <th className="py-2 text-center">6s</th>
+                <th className="py-2 text-right">SR</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-750/30 text-slate-200">
+            <tbody className="divide-y divide-soft/40 text-slate-200">
               {inningsData.batsmen.map((b, i) => (
-                <tr key={i} className="hover:bg-slate-750/20">
-                  <td className="py-3 font-semibold text-sm">{b.name}</td>
-                  <td className="py-3 text-slate-400">
+                <tr key={i} className="hover:bg-slate-800/15 font-sans">
+                  <td className="py-2 font-bold text-slate-105">{b.name}</td>
+                  <td className="py-2 text-slate-450 text-[10px]">
                     {b.howOut === "notout" 
                       ? "not out" 
                       : b.howOut === "caught" 
@@ -977,16 +977,16 @@ function ScorecardTable({ inningsData }: { inningsData: InningsState }) {
                           ? `run out (${b.fielderName || "fielder"})` 
                           : b.howOut}
                   </td>
-                  <td className="py-3 text-center font-bold text-base text-amber-300">{b.runs}</td>
-                  <td className="py-3 text-center text-slate-350">{b.balls}</td>
-                  <td className="py-3 text-center">{b.fours}</td>
-                  <td className="py-3 text-center">{b.sixes}</td>
-                  <td className="py-3 text-right font-mono text-slate-400">{calcStrikeRate(b.runs, b.balls)}</td>
+                  <td className="py-2 text-center font-extrabold text-sky-400 font-mono text-xs">{b.runs}</td>
+                  <td className="py-2 text-center text-slate-400 font-mono text-[10.5px]">{b.balls}</td>
+                  <td className="py-2 text-center font-mono text-[10px]">{b.fours}</td>
+                  <td className="py-2 text-center font-mono text-[10px]">{b.sixes}</td>
+                  <td className="py-2 text-right font-mono text-[10px] text-slate-455">{calcStrikeRate(b.runs, b.balls)}</td>
                 </tr>
               ))}
               {inningsData.batsmen.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="py-4 text-center text-slate-500 italic">No batsmen face delieveries yet</td>
+                  <td colSpan={7} className="py-3 text-center text-slate-500 italic font-mono text-[10px]">No batsmen faced deliveries yet</td>
                 </tr>
               )}
             </tbody>
@@ -994,45 +994,45 @@ function ScorecardTable({ inningsData }: { inningsData: InningsState }) {
         </div>
 
         {/* Extras line */}
-        <div className="mt-3 p-3 bg-slate-900/40 rounded-xl flex items-center justify-between text-xs text-slate-300 border border-slate-750">
-          <span>
-            <strong>Extras:</strong> {inningsData.extras?.total || 0} (w {inningsData.extras?.wides || 0}, nb {inningsData.extras?.noBalls || 0}, b {inningsData.extras?.byes || 0}, lb {inningsData.extras?.legByes || 0})
+        <div className="mt-2.5 p-2 bg-slate-950/40 rounded-lg flex items-center justify-between text-[10px] text-slate-305 border border-soft/50">
+          <span className="font-sans text-slate-450">
+            <strong className="font-mono text-slate-400 text-[9px] uppercase tracking-wider">Extras:</strong> {inningsData.extras?.total || 0} <span className="font-mono text-[9px] text-slate-550">(w {inningsData.extras?.wides || 0}, nb {inningsData.extras?.noBalls || 0}, b {inningsData.extras?.byes || 0}, lb {inningsData.extras?.legByes || 0})</span>
           </span>
-          <span className="font-bold text-white">
-            Total Innings Runs: {inningsData.runs} / {inningsData.wickets}
+          <span className="font-extrabold text-white font-mono uppercase tracking-wide text-[9px]">
+            Total Runs: {inningsData.runs} / {inningsData.wickets}
           </span>
         </div>
       </div>
 
       {/* Bowling Card table */}
       <div>
-        <h4 className="text-white font-extrabold text-sm mb-3 uppercase tracking-wider text-teal-400">Bowling Card</h4>
+        <h4 className="text-white font-extrabold text-xs mb-2 uppercase tracking-wider text-sky-405 font-mono">Bowling Card</h4>
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs divide-y divide-slate-700/50">
+          <table className="w-full text-left text-[11px] divide-y divide-soft/50">
             <thead>
-              <tr className="text-slate-400 font-bold uppercase tracking-wider">
-                <th className="py-2.5">Bowler</th>
-                <th className="py-2.5 text-center">Overs</th>
-                <th className="py-2.5 text-center">Maidens</th>
-                <th className="py-2.5 text-center">Runs</th>
-                <th className="py-2.5 text-center text-teal-300">Wickets</th>
-                <th className="py-2.5 text-right">Econ</th>
+              <tr className="text-slate-455 font-bold uppercase tracking-wider text-[9px] font-mono">
+                <th className="py-2">Bowler</th>
+                <th className="py-2 text-center">Overs</th>
+                <th className="py-2 text-center">Maidens</th>
+                <th className="py-2 text-center">Runs</th>
+                <th className="py-2 text-center text-sky-400 font-mono">Wickets</th>
+                <th className="py-2 text-right">Econ</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-750/30 text-slate-200">
+            <tbody className="divide-y divide-soft/40 text-slate-205 font-sans">
               {inningsData.bowlers.map((bowl, i) => (
-                <tr key={i} className="hover:bg-slate-755/20">
-                  <td className="py-3 font-semibold text-sm">{bowl.name}</td>
-                  <td className="py-3 text-center">{ballsToOvers(bowl.balls)}</td>
-                  <td className="py-3 text-center">{bowl.maidens}</td>
-                  <td className="py-3 text-center font-bold text-rose-300">{bowl.runs}</td>
-                  <td className="py-3 text-center font-black text-emerald-400 text-sm">{bowl.wickets}</td>
-                  <td className="py-3 text-right font-mono text-slate-400">{calcEconomy(bowl.runs, bowl.balls)}</td>
+                <tr key={i} className="hover:bg-slate-800/15">
+                  <td className="py-2 font-bold text-slate-105">{bowl.name}</td>
+                  <td className="py-2 text-center font-mono text-[10px]">{ballsToOvers(bowl.balls)}</td>
+                  <td className="py-2 text-center font-mono text-[10px]">{bowl.maidens}</td>
+                  <td className="py-2 text-center font-mono text-[10px] text-rose-450">{bowl.runs}</td>
+                  <td className="py-2 text-center font-extrabold text-sky-400 font-mono text-xs">{bowl.wickets}</td>
+                  <td className="py-2 text-right font-mono text-[10px] text-slate-455">{calcEconomy(bowl.runs, bowl.balls)}</td>
                 </tr>
               ))}
               {inningsData.bowlers.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="py-4 text-center text-slate-500 italic">No bowlers assigned yet</td>
+                  <td colSpan={6} className="py-3 text-center text-slate-500 italic font-mono text-[10px]">No bowlers assigned yet</td>
                 </tr>
               )}
             </tbody>
@@ -1042,13 +1042,13 @@ function ScorecardTable({ inningsData }: { inningsData: InningsState }) {
 
       {/* Fall of wicket details */}
       {inningsData.fallOfWickets && inningsData.fallOfWickets.length > 0 && (
-        <div className="p-4 bg-slate-900/30 border border-slate-750 rounded-xl space-y-1.5">
-          <h4 className="text-[10px] uppercase font-black tracking-widest text-slate-400">Fall of Wickets</h4>
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-300">
+        <div className="p-3 bg-slate-950/40 border border-soft/50 rounded-lg space-y-1">
+          <h4 className="text-[9px] uppercase font-bold tracking-wider text-slate-500 font-mono">Fall of Wickets</h4>
+          <div className="flex flex-wrap gap-x-3.5 gap-y-1.5 text-[10px] text-slate-350 font-mono">
             {inningsData.fallOfWickets.map((fow, idx) => (
               <span key={idx}>
-                <strong>{fow.wicketNum}-{fow.score}</strong> ({fow.batsmanName}, {fow.overs} ov)
-                {idx < inningsData.fallOfWickets.length - 1 && <span className="ml-4 text-slate-600">|</span>}
+                <strong>{fow.wicketNum}-{fow.score}</strong> <span className="text-slate-450">({fow.batsmanName}, {fow.overs} ov)</span>
+                {idx < inningsData.fallOfWickets.length - 1 && <span className="ml-3 text-slate-700">|</span>}
               </span>
             ))}
           </div>

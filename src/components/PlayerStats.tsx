@@ -48,14 +48,14 @@ export default function PlayerStats() {
   return (
     <div id="player-statistics-container" className="space-y-6">
       {/* Search and Filters Header */}
-      <div className="bg-slate-800/60 p-5 rounded-xl border border-slate-700 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="bg-brand-surface p-4 rounded-xl border border-soft flex flex-col md:flex-row items-center justify-between gap-4 shadow-lg">
         <div className="relative w-full md:w-96">
           <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
             <Search className="w-4 h-4" />
           </span>
           <input
             type="text"
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 pl-10 pr-4 text-slate-200 text-sm focus:outline-none focus:border-emerald-500"
+            className="w-full bg-slate-950/80 border border-soft rounded-lg py-1.5 pl-10 pr-4 text-slate-200 text-xs focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 font-sans"
             placeholder="Search players or local clubs..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -67,7 +67,7 @@ export default function PlayerStats() {
             <button
               key={role}
               onClick={() => setSelectedRoleFilter(role)}
-              className={`text-xs px-4 py-2 rounded-lg font-semibold border transition shrink-0 uppercase tracking-widest cursor-pointer ${selectedRoleFilter === role ? "bg-emerald-500 text-slate-950 border-emerald-500" : "bg-slate-900 text-slate-300 border-slate-700 hover:bg-slate-800"}`}
+              className={`text-[10px] px-3.5 py-1.5 rounded font-bold border transition shrink-0 uppercase tracking-widest cursor-pointer ${selectedRoleFilter === role ? "bg-sky-600 text-white border-sky-550 shadow-sm" : "bg-slate-950/65 text-slate-300 border-soft hover:bg-slate-800 hover:text-white"}`}
             >
               {role === "all" ? "All Players" : `${role}s`}
             </button>
@@ -76,54 +76,50 @@ export default function PlayerStats() {
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-slate-400">Loading comprehensive player pool...</div>
+        <div className="text-center py-12 text-slate-400 font-mono text-xs">Loading comprehensive player pool...</div>
       ) : filteredPlayers.length === 0 ? (
-        <div className="bg-slate-800/40 border border-slate-700 py-16 rounded-xl text-center text-slate-400">
+        <div className="bg-brand-surface border border-soft py-16 rounded-xl text-center text-slate-400 max-w-xl mx-auto font-mono text-xs">
           No players match your active search terms. Use matches to record stats!
         </div>
       ) : (
         /* Players Stats Grid Table */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredPlayers.map((player) => {
-            const battingAvg = calcAverage(player.stats.runs, player.stats.innings - player.stats.notOuts);
-            const striking = calcStrikeRate(player.stats.runs, player.stats.ballsFaced);
-            const bowlingEcon = calcEconomy(player.stats.runsConceded, player.stats.ballsBowled);
-
             return (
               <div
                 key={player.id}
                 onClick={() => setSelectedPlayer(player)}
-                className="bg-slate-800/40 hover:bg-slate-800/80 transition p-5 rounded-2xl border border-slate-700/80 cursor-pointer flex flex-col justify-between group"
+                className="bg-brand-surface hover:bg-slate-800/50 transition p-4 rounded-xl border border-soft cursor-pointer flex flex-col justify-between group shadow-lg relative overflow-hidden"
               >
                 <div>
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center text-emerald-400 border border-slate-700 font-bold group-hover:scale-105 duration-200">
-                      <CircleUser className="w-6 h-6" />
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-full bg-slate-950 flex items-center justify-center text-sky-450 border border-soft font-bold group-hover:scale-105 duration-200">
+                      <CircleUser className="w-5 h-5 text-sky-400" />
                     </div>
                     <div>
-                      <h3 className="font-extrabold text-white text-base group-hover:text-emerald-300 transition">{player.name}</h3>
-                      <span className="text-xs text-lime-400 font-medium">{player.teamName || "Free Agent"}</span>
+                      <h3 className="font-extrabold text-white text-sm group-hover:text-sky-350 transition">{player.name}</h3>
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-sky-400">{player.teamName || "Free Agent"}</span>
                     </div>
                   </div>
 
                   {/* Career Metrics Preview */}
-                  <div className="grid grid-cols-3 gap-2 py-3 border-t border-slate-700/40">
-                    <div className="text-center bg-slate-900/40 p-2 rounded-lg">
-                      <span className="block text-[10px] text-slate-400 uppercase tracking-widest font-black">Runs</span>
-                      <span className="block font-black text-amber-300 text-lg">{player.stats.runs || 0}</span>
+                  <div className="grid grid-cols-3 gap-2 py-3 border-t border-soft">
+                    <div className="text-center bg-slate-950/40 p-2 rounded border border-soft/30">
+                      <span className="block text-[8px] text-slate-500 uppercase tracking-widest font-bold">Runs</span>
+                      <span className="block font-bold text-sky-400 font-mono text-sm leading-tight mt-0.5">{player.stats.runs || 0}</span>
                     </div>
-                    <div className="text-center bg-slate-900/40 p-2 rounded-lg">
-                      <span className="block text-[10px] text-slate-400 uppercase tracking-widest font-black">Wickets</span>
-                      <span className="block font-black text-teal-300 text-lg">{player.stats.wickets || 0}</span>
+                    <div className="text-center bg-slate-950/40 p-2 rounded border border-soft/30">
+                      <span className="block text-[8px] text-slate-500 uppercase tracking-widest font-bold">Wickets</span>
+                      <span className="block font-bold text-sky-400 font-mono text-sm leading-tight mt-0.5">{player.stats.wickets || 0}</span>
                     </div>
-                    <div className="text-center bg-slate-900/40 p-2 rounded-lg">
-                      <span className="block text-[10px] text-slate-400 uppercase tracking-widest font-black">Matches</span>
-                      <span className="block font-black text-slate-300 text-lg">{player.stats.matches || 0}</span>
+                    <div className="text-center bg-slate-950/40 p-2 rounded border border-soft/30">
+                      <span className="block text-[8px] text-slate-500 uppercase tracking-widest font-bold">Matches</span>
+                      <span className="block font-bold text-slate-300 font-mono text-sm leading-tight mt-0.5">{player.stats.matches || 0}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="text-[10px] mt-3 hover:underline text-emerald-400 text-right font-semibold tracking-wider">
+                <div className="text-[9px] mt-2 group-hover:underline text-sky-400 text-right font-bold uppercase tracking-widest">
                   View Detailed Breakdown &rarr;
                 </div>
               </div>
@@ -134,139 +130,139 @@ export default function PlayerStats() {
 
       {/* Comprehensive individual player breakdown overlay modal */}
       {selectedPlayer && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-slate-800 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 relative shadow-2xl overflow-y-auto max-h-[90vh]">
+        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+          <div className="bg-brand-surface border border-soft rounded-xl max-w-2xl w-full p-5 relative shadow-inner overflow-y-auto max-h-[90vh]">
             <button
               onClick={() => setSelectedPlayer(null)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-700 transition cursor-pointer"
+              className="absolute top-4 right-4 text-slate-400 hover:text-white p-1.5 rounded border border-soft bg-slate-950/40 hover:bg-slate-800 transition cursor-pointer"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
 
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-14 h-14 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-teal-400">
-                <Trophy className="w-8 h-8" />
+            <div className="flex items-center gap-4 mb-5">
+              <div className="w-12 h-12 rounded-full bg-slate-950 border border-soft flex items-center justify-center text-sky-450">
+                <Trophy className="w-6 h-6 text-sky-450" />
               </div>
               <div>
-                <h2 className="text-2xl font-black text-white">{selectedPlayer.name}</h2>
-                <span className="text-sm text-amber-300 font-semibold">{selectedPlayer.teamName || "Unattached player"}</span>
+                <h2 className="text-lg font-extrabold text-white">{selectedPlayer.name}</h2>
+                <span className="text-xs text-sky-400 font-mono font-bold uppercase tracking-wider">{selectedPlayer.teamName || "Unattached player"}</span>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Batting metrics */}
-              <div className="bg-slate-900/40 p-4 rounded-xl border border-slate-700/50">
-                <h3 className="text-sm font-extrabold text-emerald-400 uppercase tracking-widest border-b border-slate-700 pb-2 mb-3 flex items-center gap-1.5">
-                  <Swords className="w-4 h-4" /> Batting Statistics
+              <div className="bg-slate-950/55 p-4 rounded-lg border border-soft/50">
+                <h3 className="text-[10px] font-bold text-sky-400 uppercase tracking-widest border-b border-soft pb-2 mb-3 flex items-center gap-1.5">
+                  <Swords className="w-4 h-4 text-sky-400" /> Batting Statistics
                 </h3>
-                <div className="space-y-2.5 text-sm text-slate-200">
+                <div className="space-y-2 text-xs text-slate-200">
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Innings</span>
-                    <span className="font-bold">{selectedPlayer.stats.innings}</span>
+                    <span className="text-slate-450 font-medium">Innings</span>
+                    <span className="font-bold font-mono">{selectedPlayer.stats.innings}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Runs Scored</span>
-                    <span className="font-bold text-amber-300">{selectedPlayer.stats.runs}</span>
+                    <span className="text-slate-450 font-medium font-sans">Runs Scored</span>
+                    <span className="font-extrabold text-sky-400 font-mono">{selectedPlayer.stats.runs}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Balls Faced</span>
-                    <span className="font-bold">{selectedPlayer.stats.ballsFaced}</span>
+                    <span className="text-slate-450 font-medium">Balls Faced</span>
+                    <span className="font-bold font-mono">{selectedPlayer.stats.ballsFaced}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Strike Rate</span>
-                    <span className="font-bold">
+                    <span className="text-slate-450 font-medium">Strike Rate</span>
+                    <span className="font-bold text-sky-400 font-mono">
                       {calcStrikeRate(selectedPlayer.stats.runs, selectedPlayer.stats.ballsFaced)}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Batting Average</span>
-                    <span className="font-bold">
+                    <span className="text-slate-450 font-medium">Batting Average</span>
+                    <span className="font-bold font-mono">
                       {calcAverage(selectedPlayer.stats.runs, selectedPlayer.stats.innings - selectedPlayer.stats.notOuts)}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">High Score</span>
-                    <span className="font-bold">{selectedPlayer.stats.highScore}</span>
+                    <span className="text-slate-450 font-medium">High Score</span>
+                    <span className="font-bold font-mono">{selectedPlayer.stats.highScore}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Not Outs</span>
-                    <span className="font-bold">{selectedPlayer.stats.notOuts}</span>
+                    <span className="text-slate-450 font-medium">Not Outs</span>
+                    <span className="font-bold font-mono">{selectedPlayer.stats.notOuts}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Fifties / Hundreds</span>
-                    <span className="font-bold">{selectedPlayer.stats.fifties} / {selectedPlayer.stats.hundreds}</span>
+                    <span className="text-slate-450 font-medium">Fifties / Hundreds</span>
+                    <span className="font-bold font-mono">{selectedPlayer.stats.fifties} / {selectedPlayer.stats.hundreds}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Fours / Sixes</span>
-                    <span className="font-bold font-mono text-emerald-300">{selectedPlayer.stats.fours} / {selectedPlayer.stats.sixes}</span>
+                    <span className="text-slate-450 font-medium">Fours / Sixes</span>
+                    <span className="font-bold font-mono text-sky-450">{selectedPlayer.stats.fours} / {selectedPlayer.stats.sixes}</span>
                   </div>
                 </div>
               </div>
 
               {/* Bowling metrics */}
-              <div className="bg-slate-900/40 p-4 rounded-xl border border-slate-700/50">
-                <h3 className="text-sm font-extrabold text-teal-400 uppercase tracking-widest border-b border-slate-700 pb-2 mb-3 flex items-center gap-1.5">
-                  <Star className="w-4 h-4" /> Bowling Statistics
+              <div className="bg-slate-950/55 p-4 rounded-lg border border-soft/50">
+                <h3 className="text-[10px] font-bold text-sky-400 uppercase tracking-widest border-b border-soft pb-2 mb-3 flex items-center gap-1.5">
+                  <Star className="w-4 h-4 text-sky-400" /> Bowling Statistics
                 </h3>
-                <div className="space-y-2.5 text-sm text-slate-200">
+                <div className="space-y-2 text-xs text-slate-200">
                   <div className="flex justify-between">
-                    <span className="text-slate-400">OversBowled</span>
-                    <span className="font-bold">{ballsToOvers(selectedPlayer.stats.ballsBowled || 0)}</span>
+                    <span className="text-slate-450 font-medium">Overs Bowled</span>
+                    <span className="font-bold font-mono">{ballsToOvers(selectedPlayer.stats.ballsBowled || 0)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Wickets Taken</span>
-                    <span className="font-bold text-teal-300">{selectedPlayer.stats.wickets}</span>
+                    <span className="text-slate-450 font-medium font-sans">Wickets Taken</span>
+                    <span className="font-extrabold text-sky-400 font-mono">{selectedPlayer.stats.wickets}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Runs Conceded</span>
-                    <span className="font-bold text-rose-300">{selectedPlayer.stats.runsConceded}</span>
+                    <span className="text-slate-450 font-medium">Runs Conceded</span>
+                    <span className="font-bold text-rose-450 font-mono">{selectedPlayer.stats.runsConceded}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Economy Rate</span>
-                    <span className="font-bold">
+                    <span className="text-slate-450 font-medium">Economy Rate</span>
+                    <span className="font-bold font-mono">
                       {calcEconomy(selectedPlayer.stats.runsConceded, selectedPlayer.stats.ballsBowled)}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Bowling Average</span>
-                    <span className="font-bold">
+                    <span className="text-slate-450 font-medium">Bowling Average</span>
+                    <span className="font-bold font-mono">
                       {selectedPlayer.stats.wickets > 0 ? (selectedPlayer.stats.runsConceded / selectedPlayer.stats.wickets).toFixed(2) : "-"}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Maidens</span>
-                    <span className="font-bold">{selectedPlayer.stats.maidens}</span>
+                    <span className="text-slate-450 font-medium">Maidens</span>
+                    <span className="font-bold font-mono">{selectedPlayer.stats.maidens}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Best Bowling</span>
-                    <span className="font-bold">
+                    <span className="text-slate-450 font-medium">Best Bowling</span>
+                    <span className="font-bold font-mono font-bold text-sky-450">
                       {selectedPlayer.stats.bestBowlingWickets > 0 ? `${selectedPlayer.stats.bestBowlingWickets}/${selectedPlayer.stats.bestBowlingRuns}` : "-"}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">5-wickets (5w)</span>
-                    <span className="font-bold text-teal-400">{selectedPlayer.stats.fiveWickets}</span>
+                    <span className="text-slate-450 font-medium">5-wickets (5w)</span>
+                    <span className="font-bold font-mono text-sky-455">{selectedPlayer.stats.fiveWickets}</span>
                   </div>
                 </div>
               </div>
 
               {/* Fielding metrics */}
-              <div className="bg-slate-900/40 p-4 rounded-xl border border-slate-700/50 md:col-span-2">
-                <h3 className="text-sm font-extrabold text-amber-400 uppercase tracking-widest border-b border-slate-700 pb-2 mb-3 flex items-center gap-1.5">
-                  <Trophy className="w-4 h-4" /> Fielding Statistics
+              <div className="bg-slate-950/55 p-4 rounded-lg border border-soft/50 md:col-span-2">
+                <h3 className="text-[10px] font-bold text-sky-400 uppercase tracking-widest border-b border-soft pb-2 mb-3 flex items-center gap-1.5">
+                  <Trophy className="w-4 h-4 text-sky-400" /> Fielding Statistics
                 </h3>
-                <div className="grid grid-cols-3 gap-4 text-center mt-2 text-sm text-slate-200">
-                  <div className="bg-slate-800 p-2.5 rounded-lg border border-slate-700/60">
-                    <span className="block text-xs text-slate-400">Catches</span>
-                    <span className="block text-lg font-extrabold mt-1">{selectedPlayer.stats.catches || 0}</span>
+                <div className="grid grid-cols-3 gap-3 text-center mt-2 text-xs text-slate-200">
+                  <div className="bg-slate-900/60 p-2 rounded border border-soft/50">
+                    <span className="block text-[8px] uppercase tracking-widest font-mono text-slate-450">Catches</span>
+                    <span className="block font-bold font-mono text-sm text-sky-400 mt-1">{selectedPlayer.stats.catches || 0}</span>
                   </div>
-                  <div className="bg-slate-800 p-2.5 rounded-lg border border-slate-700/60">
-                    <span className="block text-xs text-slate-400">Stumpings</span>
-                    <span className="block text-lg font-extrabold mt-1">{selectedPlayer.stats.stumpings || 0}</span>
+                  <div className="bg-slate-900/60 p-2 rounded border border-soft/50">
+                    <span className="block text-[8px] uppercase tracking-widest font-mono text-slate-450">Stumpings</span>
+                    <span className="block font-bold font-mono text-sm text-sky-400 mt-1">{selectedPlayer.stats.stumpings || 0}</span>
                   </div>
-                  <div className="bg-slate-800 p-2.5 rounded-lg border border-slate-700/60">
-                    <span className="block text-xs text-slate-400">Run Outs</span>
-                    <span className="block text-lg font-extrabold mt-1">{selectedPlayer.stats.runOuts || 0}</span>
+                  <div className="bg-slate-900/60 p-2 rounded border border-soft/50">
+                    <span className="block text-[8px] uppercase tracking-widest font-mono text-slate-450">Run Outs</span>
+                    <span className="block font-bold font-mono text-sm text-sky-400 mt-1">{selectedPlayer.stats.runOuts || 0}</span>
                   </div>
                 </div>
               </div>

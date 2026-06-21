@@ -12,12 +12,14 @@ export default function AuthScreen({ onSuccess }: AuthScreenProps) {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [error, setError] = useState("");
+  const [errCode, setErrCode] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) return;
     setError("");
+    setErrCode("");
     setLoading(true);
 
     try {
@@ -29,6 +31,7 @@ export default function AuthScreen({ onSuccess }: AuthScreenProps) {
       onSuccess();
     } catch (err: any) {
       console.error(err);
+      setErrCode(err.code || "");
       setError(err.message || "Authentication failed. Try again.");
     } finally {
       setLoading(false);
@@ -37,12 +40,14 @@ export default function AuthScreen({ onSuccess }: AuthScreenProps) {
 
   const handleGuestLogin = async () => {
     setError("");
+    setErrCode("");
     setLoading(true);
     try {
       await signInAnonymously(auth);
       onSuccess();
     } catch (err: any) {
       console.error(err);
+      setErrCode(err.code || "");
       setError(err.message || "Guest authentication failed. Try again.");
     } finally {
       setLoading(false);
@@ -50,34 +55,67 @@ export default function AuthScreen({ onSuccess }: AuthScreenProps) {
   };
 
   return (
-    <div id="auth-screen-container" className="min-h-screen bg-slate-900 text-slate-100 flex flex-col justify-center items-center p-4 relative overflow-hidden">
-      {/* Decorative turf ring */}
-      <div className="absolute w-[600px] h-[600px] rounded-full border border-emerald-500/10 -top-40 -left-40 pointer-events-none animate-pulse"></div>
-      <div className="absolute w-[800px] h-[800px] rounded-full border border-emerald-500/5 -bottom-80 -right-80 pointer-events-none"></div>
+    <div id="auth-screen-container" className="min-h-screen bg-brand-bg text-slate-100 flex flex-col justify-center items-center p-4 relative overflow-hidden">
+      {/* Decorative high-tech telemetry rings */}
+      <div className="absolute w-[600px] h-[600px] rounded-full border border-sky-500/5 -top-40 -left-40 pointer-events-none animate-pulse"></div>
+      <div className="absolute w-[800px] h-[800px] rounded-full border border-sky-500/5 -bottom-80 -right-80 pointer-events-none"></div>
 
-      <div className="max-w-md w-full bg-slate-800/80 backdrop-blur-md rounded-2xl border border-slate-700 p-8 shadow-2xl relative z-10">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center bg-emerald-500/10 text-emerald-400 p-4 rounded-full mb-4 border border-emerald-500/20">
-            <Trophy className="w-8 h-8" />
+      <div className="max-w-md w-full bg-slate-900/60 backdrop-blur-md rounded-2xl border border-soft p-8 shadow-2xl relative z-10">
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center justify-center bg-sky-500/10 text-sky-400 p-3 rounded-xl mb-4 border border-sky-500/20">
+            <Trophy className="w-8 h-8 text-sky-400" />
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-white font-sans bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-teal-200">
-            CenturyScorer
+          <h1 className="text-3xl font-extrabold tracking-tight text-white font-sans">
+            CENTURY <span className="text-sky-400">SCORER</span>
           </h1>
-          <p className="text-slate-400 text-sm mt-2">
-            Real-time cricket scoring, tournament tables & player stats
+          <p className="text-slate-400 text-xs font-mono uppercase tracking-wider mt-2">
+            HIGH DENSITY • CRICKET SCORING HUB
           </p>
         </div>
 
         {error && (
-          <div className="bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm p-3 rounded-lg mb-6">
-            {error}
+          <div className="bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs p-4 rounded-xl mb-6 shadow-md">
+            {errCode === "auth/operation-not-allowed" ? (
+              <div className="space-y-3 font-sans">
+                <span className="font-extrabold text-[11px] text-rose-450 uppercase tracking-wider block font-mono">
+                  🚨 Sign-In Config Required in Firebase Console
+                </span>
+                <p className="text-slate-300 leading-relaxed text-[11px]">
+                  Email/Password and Guest Sign-in methods are currently disabled for this Firebase project. You can enable them with a few clicks:
+                </p>
+                <div className="space-y-1 text-[11px] list-decimal pl-4 text-slate-400">
+                  <div className="mb-2">
+                    <strong className="text-sky-400">Step 1:</strong> Click the direct console link below to open your auth settings:
+                    <a
+                      href="https://console.firebase.google.com/project/lucid-lodge-c8kj5/authentication/providers"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block mt-1 font-mono text-[10px] text-sky-400 hover:underline bg-slate-950 p-2 rounded border border-soft truncate select-all"
+                    >
+                      console.firebase.google.com/.../providers
+                    </a>
+                  </div>
+                  <div>
+                    <strong className="text-sky-400">Step 2:</strong> Click the <strong className="text-slate-200">"Add new provider"</strong> button under Native providers, select <strong className="text-slate-200">Email/Password</strong>, toggle <strong>Enable</strong>, and save.
+                  </div>
+                  <div className="mt-1">
+                    <strong className="text-sky-400">Step 3:</strong> Click <strong className="text-slate-200">"Add new provider"</strong> again, select <strong className="text-slate-200">Anonymous</strong>, toggle <strong>Enable</strong>, and save.
+                  </div>
+                </div>
+                <p className="text-[10px] text-slate-500 italic mt-2 border-t border-soft/50 pt-1.5 font-mono">
+                  No code changes needed! Once saved in the Console, login and guest modes will instantly work.
+                </p>
+              </div>
+            ) : (
+              <p className="font-mono leading-relaxed">{error}</p>
+            )}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {isSignUp && (
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
                 Your Name
               </label>
               <div className="relative">
@@ -87,7 +125,7 @@ export default function AuthScreen({ onSuccess }: AuthScreenProps) {
                 <input
                   type="text"
                   required={isSignUp}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg py-2.5 pl-10 pr-4 text-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                  className="w-full bg-slate-950/80 border border-soft rounded-lg py-2 pl-10 pr-4 text-sm text-slate-200 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 font-sans"
                   placeholder="Steve Smith"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -97,7 +135,7 @@ export default function AuthScreen({ onSuccess }: AuthScreenProps) {
           )}
 
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
               Email Address
             </label>
             <div className="relative">
@@ -107,7 +145,7 @@ export default function AuthScreen({ onSuccess }: AuthScreenProps) {
               <input
                 type="email"
                 required
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg py-2.5 pl-10 pr-4 text-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                className="w-full bg-slate-950/80 border border-soft rounded-lg py-2 pl-10 pr-4 text-sm text-slate-200 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 font-sans"
                 placeholder="scorer@localclub.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -116,7 +154,7 @@ export default function AuthScreen({ onSuccess }: AuthScreenProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
               Password
             </label>
             <div className="relative">
@@ -126,7 +164,7 @@ export default function AuthScreen({ onSuccess }: AuthScreenProps) {
               <input
                 type="password"
                 required
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg py-2.5 pl-10 pr-4 text-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                className="w-full bg-slate-950/80 border border-soft rounded-lg py-2 pl-10 pr-4 text-sm text-slate-200 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 font-sans"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -137,27 +175,27 @@ export default function AuthScreen({ onSuccess }: AuthScreenProps) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-slate-950 font-bold py-2.5 rounded-lg transition duration-200 shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full bg-sky-600 hover:bg-sky-500 active:bg-sky-700 text-white font-extrabold text-sm py-2.5 rounded-lg transition duration-200 shadow-lg shadow-sky-900/20 flex items-center justify-center gap-2 cursor-pointer border border-sky-400/20"
           >
-            {loading ? "Please wait..." : isSignUp ? "Create Account" : "Sign In to Match Center"}
+            {loading ? "Please wait..." : isSignUp ? "Create Account" : "Sign In to Scorer Hub"}
           </button>
         </form>
 
-        <div className="mt-6 flex items-center justify-between text-xs text-slate-400">
+        <div className="mt-5 flex items-center justify-between text-[11px] text-slate-400 font-mono">
           <button
             onClick={() => setIsSignUp(!isSignUp)}
-            className="hover:text-emerald-400 underline transition duration-150 cursor-pointer"
+            className="hover:text-sky-450 underline transition duration-150 cursor-pointer text-sky-400"
           >
             {isSignUp ? "Already have an account? Sign In" : "Need an account? Sign Up"}
           </button>
         </div>
 
-        <div className="relative my-8">
+        <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-slate-700"></div>
+            <div className="w-full border-t border-soft"></div>
           </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-slate-800 px-3 text-slate-500 font-semibold tracking-widest">
+          <div className="relative flex justify-center text-[10px] uppercase">
+            <span className="bg-[#121c2e] px-3 text-slate-500 font-bold tracking-widest">
               Or Go Fast
             </span>
           </div>
@@ -166,13 +204,13 @@ export default function AuthScreen({ onSuccess }: AuthScreenProps) {
         <button
           onClick={handleGuestLogin}
           disabled={loading}
-          className="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 border border-slate-600 font-medium py-2.5 rounded-lg transition duration-200 flex items-center justify-center gap-2 cursor-pointer"
+          className="w-full bg-slate-850 hover:bg-slate-850/80 text-slate-200 border border-soft hover:border-sky-500/50 text-xs font-bold py-2 rounded-lg transition duration-200 flex items-center justify-center gap-2 cursor-pointer font-mono"
         >
-          <Sparkles className="w-4 h-4 text-amber-400" />
-          Continue as Guest (No Password)
+          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+          CONTINUE AS GUEST (FAST SCORES)
         </button>
         
-        <div className="mt-6 flex items-center gap-1.5 justify-center text-xs text-slate-500">
+        <div className="mt-6 flex items-center gap-1.5 justify-center text-[10px] text-slate-500 font-mono uppercase tracking-wider">
           <Shield className="w-3.5 h-3.5" />
           Securely powered by Google Firebase
         </div>

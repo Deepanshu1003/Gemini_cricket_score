@@ -178,12 +178,12 @@ export default function TournamentManager({ userId, onSelectMatch, onNavigateToT
   return (
     <div id="tournament-manager-section" className="space-y-8">
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-emerald-900/40 via-slate-800/60 to-slate-800/30 p-6 rounded-2xl border border-emerald-500/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-brand-surface p-5 rounded-xl border border-soft flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-lg">
         <div>
-          <h1 className="text-2xl font-extrabold text-white flex items-center gap-2">
-            <Trophy className="w-6 h-6 text-emerald-400" /> Tournaments Control
+          <h1 className="text-xl font-extrabold text-white flex items-center gap-2">
+            <Trophy className="w-5 h-5 text-sky-400" /> Tournaments Control
           </h1>
-          <p className="text-slate-400 text-sm mt-1">
+          <p className="text-slate-400 text-xs mt-1">
             Build leagues, add team pools, and view automated live score point tables.
           </p>
         </div>
@@ -191,7 +191,7 @@ export default function TournamentManager({ userId, onSelectMatch, onNavigateToT
           {selectedTourneyId && (
             <button
               onClick={() => setSelectedTourneyId(null)}
-              className="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold px-4 py-2 rounded-lg transition shrink-0 cursor-pointer"
+              className="bg-brand-action hover:bg-slate-700 border border-soft text-slate-200 text-xs font-bold px-4 py-2 rounded-lg transition shrink-0 cursor-pointer"
             >
               Back to Overview
             </button>
@@ -201,25 +201,25 @@ export default function TournamentManager({ userId, onSelectMatch, onNavigateToT
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+          <Loader2 className="w-8 h-8 text-sky-500 animate-spin" />
         </div>
       ) : !selectedTourneyId ? (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Create League */}
-          <div className="bg-slate-800/60 p-6 rounded-xl border border-slate-700/80 shadow-md">
-            <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-              <Plus className="w-5 h-5 text-emerald-400" /> Start Tournament
+          <div className="bg-brand-surface p-5 rounded-xl border border-soft shadow-md">
+            <h2 className="text-sm font-extrabold text-white mb-5 uppercase tracking-wider flex items-center gap-2">
+              <Plus className="w-4 h-4 text-sky-400" /> Start Tournament
             </h2>
 
             <form onSubmit={handleCreateTournament} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
                   Tournament / League Name
                 </label>
                 <input
                   type="text"
                   required
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 px-3 text-slate-200 focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-slate-950/80 border border-soft rounded-lg py-2 px-3 text-sm text-slate-200 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 font-sans"
                   placeholder="e.g. Summer T20 Blast"
                   value={tourneyName}
                   onChange={(e) => setTourneyName(e.target.value)}
@@ -227,11 +227,11 @@ export default function TournamentManager({ userId, onSelectMatch, onNavigateToT
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
                   Category / Description
                 </label>
                 <textarea
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 px-3 text-slate-200 focus:outline-none focus:border-emerald-500 h-20"
+                  className="w-full bg-slate-950/80 border border-soft rounded-lg py-2 px-3 text-sm text-slate-200 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 h-20"
                   placeholder="Local weekend cricket championship..."
                   value={tourneyDesc}
                   onChange={(e) => setTourneyDesc(e.target.value)}
@@ -239,31 +239,31 @@ export default function TournamentManager({ userId, onSelectMatch, onNavigateToT
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
                   Select Participating Squads
                 </label>
                 {teams.length === 0 ? (
-                  <div className="p-3 bg-slate-900/50 rounded-lg border border-slate-700/60 text-center text-xs text-slate-500">
+                  <div className="p-3 bg-slate-900/50 rounded-lg border border-soft text-center text-xs text-slate-500">
                     No teams available. Register teams in the Teams tab first!
                     <button
                       type="button"
                       onClick={() => onNavigateToTab("teams")}
-                      className="text-emerald-400 font-bold block mt-1 hover:underline mx-auto"
+                      className="text-sky-400 font-bold block mt-1 hover:underline mx-auto"
                     >
                       Go to Teams Tab
                     </button>
                   </div>
                 ) : (
-                  <div className="max-h-44 overflow-y-auto space-y-1 bg-slate-900/50 p-2 rounded-lg border border-slate-700">
+                  <div className="max-h-44 overflow-y-auto space-y-1 bg-slate-950/50 p-2 rounded-lg border border-soft">
                     {teams.map((team) => (
-                      <label key={team.id} className="flex items-center gap-2 bg-slate-800/80 hover:bg-slate-800 p-2 rounded cursor-pointer border border-slate-700/30">
+                      <label key={team.id} className="flex items-center gap-2 bg-slate-900/40 hover:bg-slate-800/40 p-2 rounded cursor-pointer border border-soft/50">
                         <input
                           type="checkbox"
                           checked={selectedTeams.includes(team.id)}
                           onChange={() => handleToggleTeamSelection(team.id)}
-                          className="rounded text-emerald-500 focus:ring-emerald-500 bg-slate-900 border-slate-700"
+                          className="rounded text-sky-500 focus:ring-sky-500 bg-slate-900 border-soft"
                         />
-                        <span className="text-sm font-medium text-slate-200">{team.name}</span>
+                        <span className="text-xs font-semibold text-slate-200">{team.name}</span>
                       </label>
                     ))}
                   </div>
@@ -273,7 +273,7 @@ export default function TournamentManager({ userId, onSelectMatch, onNavigateToT
               <button
                 type="submit"
                 disabled={creating || selectedTeams.length < 2 || teams.length === 0}
-                className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-slate-950 font-bold py-2.5 rounded-lg transition duration-150 flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-emerald-500/10"
+                className="w-full bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white font-extrabold text-sm py-2 rounded-lg transition duration-150 flex items-center justify-center gap-2 cursor-pointer border border-sky-450/20 shadow-lg shadow-sky-900/20"
               >
                 {creating ? "Launching..." : "Launch Tournament"}
               </button>
@@ -282,12 +282,12 @@ export default function TournamentManager({ userId, onSelectMatch, onNavigateToT
 
           {/* Active Tournament Cards */}
           <div className="lg:col-span-2 space-y-4">
-            <h2 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-emerald-400" /> Active Tournaments ({tournaments.length})
+            <h2 className="text-sm font-extrabold text-white mb-2 uppercase tracking-wider flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-sky-400" /> Active Tournaments ({tournaments.length})
             </h2>
 
             {tournaments.length === 0 ? (
-              <div className="bg-slate-800/30 border border-slate-700 py-16 rounded-xl text-center text-slate-400">
+              <div className="bg-brand-surface border border-soft py-16 rounded-xl text-center text-slate-400">
                 No active tournaments launched. Complete the quick setup to starting scoring!
               </div>
             ) : (
@@ -296,18 +296,18 @@ export default function TournamentManager({ userId, onSelectMatch, onNavigateToT
                   <div
                     key={tourney.id}
                     onClick={() => handleSelectTournament(tourney)}
-                    className="bg-slate-800/40 hover:bg-slate-800/60 transition p-5 rounded-xl border border-slate-700/60 flex flex-col justify-between cursor-pointer group"
+                    className="bg-brand-surface hover:bg-slate-800/50 transition p-4 rounded-xl border border-soft flex flex-col justify-between cursor-pointer group shadow-lg"
                   >
                     <div>
                       <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-extrabold text-lime-400 text-lg group-hover:text-emerald-400 transition">{tourney.name}</h3>
-                        <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded ${tourney.status === "completed" ? "bg-rose-500/10 text-rose-400 border border-rose-500/20" : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"}`}>
+                        <h3 className="font-extrabold text-sky-400 text-base group-hover:text-sky-350 transition">{tourney.name}</h3>
+                        <span className={`text-[9px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded border ${tourney.status === "completed" ? "bg-rose-500/10 text-rose-400 border border-rose-500/20" : "bg-sky-500/10 text-sky-400 border border-sky-500/20"}`}>
                           {tourney.status}
                         </span>
                       </div>
-                      <p className="text-slate-400 text-sm line-clamp-2 mb-4">{tourney.description || "Local premier cricket championship"}</p>
+                      <p className="text-slate-400 text-xs line-clamp-2 mb-4 leading-relaxed">{tourney.description || "Local premier cricket championship"}</p>
                       
-                      <div className="grid grid-cols-2 gap-2 text-xs border-t border-slate-700/40 pt-3">
+                      <div className="grid grid-cols-2 gap-2 text-[10px] border-t border-soft pt-3 font-mono font-bold uppercase tracking-wider">
                         <div className="text-slate-400 flex items-center gap-1">
                           <Users className="w-3.5 h-3.5 text-slate-500" /> {tourney.teamIds.length} Teams
                         </div>
@@ -316,8 +316,8 @@ export default function TournamentManager({ userId, onSelectMatch, onNavigateToT
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-semibold mt-4 justify-end">
-                      View Standings & Matches <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition" />
+                    <div className="flex items-center gap-1 text-xs text-sky-400 font-bold mt-4 justify-end">
+                      Standings & Matches <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition" />
                     </div>
                   </div>
                 ))}
@@ -330,40 +330,40 @@ export default function TournamentManager({ userId, onSelectMatch, onNavigateToT
         <div className="space-y-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* standings Table */}
-            <div className="lg:col-span-2 bg-slate-800/60 p-6 rounded-2xl border border-slate-700 shadow-md">
-              <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                <Medal className="w-5 h-5 text-amber-400" /> Point Table Standings
+            <div className="lg:col-span-2 bg-brand-surface p-5 rounded-xl border border-soft shadow-lg">
+              <h2 className="text-sm font-extrabold text-white uppercase tracking-wider mb-5 flex items-center gap-2">
+                <Medal className="w-4 h-4 text-amber-500 animate-pulse" /> Point Table Standings
               </h2>
 
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-slate-700 text-slate-400 text-xs font-bold uppercase tracking-wider">
-                      <th className="py-3 px-4">Club Team</th>
-                      <th className="py-3 px-4 text-center">Played</th>
-                      <th className="py-3 px-4 text-center text-emerald-400">Wins</th>
-                      <th className="py-3 px-4 text-center text-rose-400">Losses</th>
-                      <th className="py-3 px-4 text-center text-amber-300">Points</th>
+                    <tr className="border-b border-soft text-slate-450 text-[10px] font-bold uppercase tracking-widest">
+                      <th className="py-2.5 px-4">Club Team</th>
+                      <th className="py-2.5 px-4 text-center">Played</th>
+                      <th className="py-2.5 px-4 text-center text-sky-450">Wins</th>
+                      <th className="py-2.5 px-4 text-center text-rose-450">Losses</th>
+                      <th className="py-2.5 px-4 text-center text-sky-400">Points</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-700/40 text-slate-200">
+                  <tbody className="divide-y divide-soft/50 text-slate-200">
                     {pointTable.map((row, index) => (
-                      <tr key={index} className="hover:bg-slate-700/30 transition">
-                        <td className="py-3.5 px-4 font-bold flex items-center gap-3">
-                          <span className={`w-5 h-5 text-xs rounded-full flex items-center justify-center font-bold ${index === 0 ? "bg-amber-400 text-slate-900" : index === 1 ? "bg-slate-300 text-slate-900" : "bg-slate-700 text-slate-300"}`}>
+                      <tr key={index} className="hover:bg-slate-800/40 transition">
+                        <td className="py-3 px-4 font-bold flex items-center gap-3 text-sm">
+                          <span className={`w-5 h-5 text-xs rounded flex items-center justify-center font-bold ${index === 0 ? "bg-amber-400 text-slate-950 font-black" : index === 1 ? "bg-slate-300 text-slate-950 font-bold" : "bg-brand-action text-slate-300 font-bold"}`}>
                             {index + 1}
                           </span>
                           {row.teamName}
                         </td>
-                        <td className="py-3.5 px-4 text-center">{row.played}</td>
-                        <td className="py-3.5 px-4 text-center font-bold text-emerald-400">{row.won}</td>
-                        <td className="py-3.5 px-4 text-center font-bold text-rose-400">{row.lost}</td>
-                        <td className="py-3.5 px-4 text-center font-extrabold text-amber-300 text-base">{row.points}</td>
+                        <td className="py-3 px-4 text-center font-mono text-xs">{row.played}</td>
+                        <td className="py-3 px-4 text-center font-bold text-sky-400 font-mono text-xs">{row.won}</td>
+                        <td className="py-3 px-4 text-center font-bold text-rose-400 font-mono text-xs">{row.lost}</td>
+                        <td className="py-3 px-4 text-center font-extrabold text-sky-450 font-mono text-sm">{row.points}</td>
                       </tr>
                     ))}
                     {pointTable.length === 0 && (
                       <tr>
-                        <td colSpan={5} className="py-8 text-center text-slate-500 italic">No teams registered or active</td>
+                        <td colSpan={5} className="py-8 text-center text-slate-500 italic text-xs font-mono">No teams registered or active</td>
                       </tr>
                     )}
                   </tbody>
@@ -372,26 +372,26 @@ export default function TournamentManager({ userId, onSelectMatch, onNavigateToT
             </div>
 
             {/* Tournament Info */}
-            <div className="bg-slate-800/60 p-6 rounded-2xl border border-slate-700 flex flex-col justify-between">
+            <div className="bg-brand-surface p-5 rounded-xl border border-soft flex flex-col justify-between shadow-lg">
               <div>
-                <h3 className="text-xs uppercase font-extrabold tracking-wider text-slate-400 mb-2">Selected League</h3>
-                <h2 className="text-2xl font-black text-white">{activeTourney?.name}</h2>
-                <p className="text-slate-400 text-sm mt-3 leading-relaxed">{activeTourney?.description || "Local premier grand-championship organized in the district."}</p>
+                <h3 className="text-[9px] uppercase font-bold tracking-widest text-slate-500 mb-1.5">Selected League</h3>
+                <h2 className="text-xl font-black text-white">{activeTourney?.name}</h2>
+                <p className="text-slate-400 text-xs mt-3 leading-relaxed">{activeTourney?.description || "Local premier grand-championship organized in the district."}</p>
                 
-                <h4 className="text-xs uppercase font-extrabold tracking-wider text-slate-400 mt-6 mb-3">Competing Teams ({activeTourney?.teamNames.length})</h4>
-                <div className="flex flex-wrap gap-2">
+                <h4 className="text-[10px] uppercase font-bold tracking-widest text-slate-500 mt-6 mb-3">Competing Teams ({activeTourney?.teamNames.length})</h4>
+                <div className="flex flex-wrap gap-1.5">
                   {activeTourney?.teamNames.map((n, i) => (
-                    <span key={i} className="bg-slate-900/80 px-2.5 py-1 text-xs rounded-lg border border-slate-700 font-medium text-slate-300">
+                    <span key={i} className="bg-slate-950/80 px-2.5 py-1 text-[10px] rounded border border-soft font-mono font-bold text-slate-300">
                       {n}
                     </span>
                   ))}
                 </div>
               </div>
 
-              <div className="mt-8 pt-4 border-t border-slate-700/40">
+              <div className="mt-8 pt-4 border-t border-soft">
                 <button
                   onClick={() => onNavigateToTab("live")}
-                  className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 active:from-emerald-600 hover:scale-[1.01] text-slate-950 font-bold py-2.5 rounded-lg transition dynamic-shadow flex items-center justify-center gap-1.5 cursor-pointer text-sm"
+                  className="w-full bg-sky-600 hover:bg-sky-500 text-white font-extrabold py-2.5 rounded-lg transition border border-sky-450/20 shadow-lg shadow-sky-900/20 flex items-center justify-center gap-1.5 cursor-pointer text-xs uppercase tracking-wider font-mono"
                 >
                   <Swords className="w-4 h-4 shadow-sm" /> Schedule Match Now
                 </button>
@@ -400,60 +400,60 @@ export default function TournamentManager({ userId, onSelectMatch, onNavigateToT
           </div>
 
           {/* Tournament Fixtures / Matches */}
-          <div className="bg-slate-800/40 p-6 rounded-2xl border border-slate-700">
-            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-              <Swords className="w-5 h-5 text-emerald-400" /> Matches / Fixtures list
+          <div className="bg-brand-surface p-5 rounded-xl border border-soft shadow-lg">
+            <h3 className="text-sm font-extrabold text-white mb-4 uppercase tracking-wider flex items-center gap-2">
+              <Swords className="w-4 h-4 text-sky-400" /> Matches / Fixtures list
             </h3>
 
             {tourneyMatches.length === 0 ? (
-              <div className="text-center py-12 text-slate-400">
+              <div className="text-center py-12 text-slate-400 font-mono text-xs">
                 No matches scheduled for this tournament yet. Create one in the Match Control panel.
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {tourneyMatches.map((m) => (
-                  <div
-                    key={m.id}
-                    onClick={() => onSelectMatch(m.id)}
-                    className="bg-slate-800/80 hover:bg-slate-800 transition p-4 rounded-xl border border-slate-700/80 flex items-center justify-between cursor-pointer group"
-                  >
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className={`text-[10px] uppercase tracking-widest font-black px-2 py-0.5 rounded ${m.status === "completed" ? "bg-slate-700/80 text-slate-300" : m.status === "live" ? "bg-rose-500/20 text-rose-300 animate-pulse" : "bg-emerald-500/10 text-emerald-400"}`}>
-                          {m.status}
-                        </span>
-                        <span className="text-[10px] text-slate-500 font-mono">{new Date(m.createdAt).toLocaleDateString()}</span>
-                      </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {tourneyMatches.map((m) => (
+                    <div
+                      key={m.id}
+                      onClick={() => onSelectMatch(m.id)}
+                      className="bg-slate-950/40 hover:bg-slate-850 p-4 rounded-xl border border-soft flex items-center justify-between cursor-pointer group shadow-sm"
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className={`text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 rounded border ${m.status === "completed" ? "bg-slate-800 text-slate-400 border-soft" : m.status === "live" ? "bg-rose-500/10 text-rose-400 border-rose-500/20 animate-pulse" : "bg-sky-500/10 text-sky-400 border border-sky-500/20"}`}>
+                            {m.status}
+                          </span>
+                          <span className="text-[10px] text-slate-500 font-mono font-semibold">{new Date(m.createdAt).toLocaleDateString()}</span>
+                        </div>
 
-                      <div className="flex items-center justify-between mt-3 mb-1">
-                        <div className="font-extrabold text-sm text-slate-100">{m.teamAName}</div>
-                        {m.status !== "scheduled" && (
-                          <div className="font-black text-sm text-teal-400">{m.innings1?.runs} / {m.innings1?.wickets}</div>
+                        <div className="flex items-center justify-between mt-3 mb-1">
+                          <div className="font-bold text-sm text-slate-100">{m.teamAName}</div>
+                          {m.status !== "scheduled" && (
+                            <div className="font-bold text-sm text-sky-400 font-mono">{m.innings1?.runs} / {m.innings1?.wickets}</div>
+                          )}
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div className="font-bold text-sm text-slate-100">{m.teamBName}</div>
+                          {m.status === "completed" && m.innings2 && (
+                            <div className="font-bold text-sm text-sky-400 font-mono">{m.innings2?.runs} / {m.innings2?.wickets}</div>
+                          )}
+                          {m.status === "live" && m.currentInnings === 2 && m.innings2 && (
+                            <div className="font-bold text-sm text-sky-400 font-mono">{m.innings2?.runs} / {m.innings2?.wickets}</div>
+                          )}
+                        </div>
+
+                        {m.resultSummary && (
+                          <p className="text-xs text-amber-300 font-semibold mt-3 italic">{m.resultSummary}</p>
                         )}
                       </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="font-extrabold text-sm text-slate-100">{m.teamBName}</div>
-                        {m.status === "completed" && m.innings2 && (
-                          <div className="font-black text-sm text-teal-400">{m.innings2?.runs} / {m.innings2?.wickets}</div>
-                        )}
-                        {m.status === "live" && m.currentInnings === 2 && m.innings2 && (
-                          <div className="font-black text-sm text-teal-400">{m.innings2?.runs} / {m.innings2?.wickets}</div>
-                        )}
+                      
+                      <div className="ml-4 shrink-0 bg-slate-800/80 border border-soft p-2 rounded-lg group-hover:bg-sky-500/15 group-hover:text-sky-350 transition text-slate-400">
+                        <ArrowRight className="w-5 h-5 animate-pulse" />
                       </div>
-
-                      {m.resultSummary && (
-                        <p className="text-xs text-amber-300 font-semibold mt-3 italic">{m.resultSummary}</p>
-                      )}
                     </div>
-                    
-                    <div className="ml-4 shrink-0 bg-slate-700/60 p-2 rounded-lg group-hover:bg-emerald-500/20 transition group-hover:text-emerald-300 text-slate-400">
-                      <ArrowRight className="w-5 h-5" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
           </div>
         </div>
       )}
