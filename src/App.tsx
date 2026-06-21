@@ -22,6 +22,26 @@ export default function App() {
   };
 
   useEffect(() => {
+    // Check if offline local user session exists first
+    const localUserStr = localStorage.getItem("offline_local_user");
+    if (localUserStr) {
+      try {
+        const u = JSON.parse(localUserStr);
+        if (u && u.uid) {
+          setUser({
+            uid: u.uid,
+            email: u.email || "Local Offline Scorer",
+            isAnonymous: true,
+            isOffline: true
+          });
+          setAuthLoading(false);
+          return; // Skip firebase listener
+        }
+      } catch (e) {
+        console.error("Stale offline user configuration", e);
+      }
+    }
+
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
         setUser({
@@ -40,7 +60,10 @@ export default function App() {
 
   const handleSignOut = async () => {
     if (window.confirm("Do you want to log out of the Scorer Hub?")) {
+      localStorage.removeItem("offline_local_user");
       await signOut(auth);
+      setUser(null);
+      window.location.reload();
     }
   };
 
@@ -169,7 +192,15 @@ export default function App() {
         <div>&copy; 2026 CenturyScorer Inc. Built beautifully for grass-root tournament cricket matches.</div>
         <div className="flex gap-4 font-bold">
           <span>App Version 2.4.0-Stable</span>
-          <span className="text-green-500 flex items-center gap-1"><span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Live Cloud Storage Enabled</span>
+          {user?.isOffline ? (
+            <span className="text-amber-500 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-ping"></span> Offline Local Storage Mode Active
+            </span>
+          ) : (
+            <span className="text-green-500 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Live Cloud Storage Enabled
+            </span>
+          )}
         </div>
       </footer>
     </div>

@@ -75,3 +75,22 @@ The application is secured with custom Zero-Trust Firestore security rules in `f
 - **Default Deny Rule**: All paths default to block unless explicitly matched.
 - **Identity Integrity**: All profile writes must match the authenticated `request.auth.uid`.
 - **Public Visibility / Private Scoring**: Matches, Tournaments, and Rosters are viewable publicly (`allow read: if true`), but writing/updating controls are restricted to the verified creator.
+
+---
+
+## 🛠️ Storage & Access Scenarios: Option 1 vs. Option 2
+
+To give you complete flexibility depending on account permissions and cloud billing requirements, Century Scorer provides two distinct, fully production-ready modes:
+
+### Scenario 1 (Option 1): Live Cloud Hosting via Google Firebase
+Ideal if you want to collaborate across multiple devices and let other viewers track live matches in real-time.
+* **Database & Auth**: Connects to the cloud-hosted Google Firestore and Firebase Authentication.
+* **Security Rules**: Automatically secured by `firestore.rules`. **The developer (AI) has already set up and deployed these rules to your Firebase cloud backend.** No manual work is needed from your side.
+* **To Use**: Ensure your Firebase Auth methods (Email/Password or Anonymous) are enabled per the configuration guide above.
+
+### Scenario 2 (Option 2): Offline Local Browser Storage Bypass
+Ideal if database quota limits, billing restrictions, or firebase access obstacles are active, or if you prefer a simplified, zero-configuration local workspace.
+* **How it works**: Bypasses the cloud entirely and persists all match play, tournaments, customized rosters, and individual batsman/bowler metrics directly inside the browser's high-speed secure `localStorage`.
+* **Zero Configuration**: Fully functional out of the box. No Firestore setup, no security rule configuration, and no internet/cloud sync delays.
+* **To Use**: Simply click **"BYPASS REGISTRATION (OFFLINE STORAGE)"** on the login screen. It will load immediately and run entirely on your browser!
+
