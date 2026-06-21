@@ -1,0 +1,70 @@
+{
+  "collections": {
+    "users": {
+      "path": "users/{userId}",
+      "fields": {
+        "id": "string",
+        "name": "string",
+        "email": "string"
+      }
+    },
+    "tournaments": {
+      "path": "tournaments/{tournamentId}",
+      "fields": {
+        "id": "string",
+        "name": "string",
+        "description": "string",
+        "createdBy": "string",
+        "creatorName": "string",
+        "teamIds": "array",
+        "matchesList": "array",
+        "status": "string",
+        "winnerTeamId": "string",
+        "winnerTeamName": "string",
+        "createdAt": "string"
+      }
+    },
+    "teams": {
+      "path": "teams/{teamId}",
+      "fields": {
+        "id": "string",
+        "name": "string",
+        "createdBy": "string",
+        "playerNames": "array",
+        "createdAt": "string"
+      }
+    },
+    "players": {
+      "path": "players/{playerId}",
+      "fields": {
+        "id": "string",
+        "name": "string",
+        "createdBy": "string",
+        "teamId": "string",
+        "teamName": "string",
+        "stats": "map"
+      }
+    },
+    "matches": {
+      "path": "matches/{matchId}",
+      "fields": {
+        "id": "string",
+        "createdBy": "string",
+        "tournamentId": "string",
+        "tournamentName": "string",
+        "teamAId": "string",
+        "teamAName": "string",
+        "teamBId": "string",
+        "teamBName": "string",
+        "overs": "number",
+        "status": "string",
+        "scorerPin": "string",
+        "innings": "map",
+        "liveScore": "map",
+        "ballHistory": "array",
+        "playerStatsSnapshot": "map",
+        "createdAt": "string"
+      }
+    }
+  }
+}

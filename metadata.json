@@ -1,0 +1,6 @@
+{
+  "name": "Cricket Score Tracker",
+  "description": "Real-time amateur cricket matchmaking, live score updates, tournament management, and comprehensive player statistics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

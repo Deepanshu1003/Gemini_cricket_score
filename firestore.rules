@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(existingData) {
+      return isSignedIn() && existingData.createdBy == request.auth.uid;
+    }
+
+    function isNewOwner(incomingData) {
+      return isSignedIn() && incomingData.createdBy == request.auth.uid;
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // User profiles
+    match /users/{userId} {
+      allow read: if true;
+      allow create, update: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Tournaments
+    match /tournaments/{tournamentId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isOwner(resource.data);
+    }
+
+    // Teams
+    match /teams/{teamId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isOwner(resource.data);
+    }
+
+    // Players
+    match /players/{playerId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isOwner(resource.data) || isSignedIn(); // Anyone logged in can update stats during matches
+    }
+
+    // Matches
+    match /matches/{matchId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update: if isOwner(resource.data) || (resource.data.scorerPin == "" || resource.data.scorerPin == null) || (request.resource.data.scorerPin == resource.data.scorerPin);
+      allow delete: if isOwner(resource.data);
+    }
+  }
+}
