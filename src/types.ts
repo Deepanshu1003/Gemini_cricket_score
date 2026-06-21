@@ -117,6 +117,7 @@ export interface BallHistoryEntry {
   dismissedBatsman?: string;
   fielderName?: string;
   description: string;
+  inningsNum?: number;
 }
 
 export interface Match {

@@ -14,6 +14,7 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabId>("matches");
   const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
+  const [confirmSignOut, setConfirmSignOut] = useState(false);
 
   // Deep Link helper to jump back into a match
   const handleSelectMatchFromTournament = (matchId: string) => {
@@ -59,12 +60,23 @@ export default function App() {
   }, []);
 
   const handleSignOut = async () => {
-    if (window.confirm("Do you want to log out of the Scorer Hub?")) {
-      localStorage.removeItem("offline_local_user");
-      await signOut(auth);
-      setUser(null);
-      window.location.reload();
+    if (!confirmSignOut) {
+      setConfirmSignOut(true);
+      // Auto-reset back to normal state after 4 seconds
+      setTimeout(() => {
+        setConfirmSignOut(false);
+      }, 4000);
+      return;
     }
+
+    localStorage.removeItem("offline_local_user");
+    try {
+      await signOut(auth);
+    } catch (err) {
+      console.warn("Firebase signout error ignored during forced local logout: ", err);
+    }
+    setUser(null);
+    window.location.reload();
   };
 
   if (authLoading) {
@@ -88,13 +100,20 @@ export default function App() {
       {/* Hub Top Navigation Header */}
       <header className="bg-brand-surface/90 backdrop-blur-md border-b border-soft sticky top-0 z-40 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3 cursor-pointer">
-            <div className="w-10 h-10 bg-sky-500 text-white flex items-center justify-center rounded-lg font-black shadow-lg shadow-sky-500/20">
+          <div 
+            onClick={() => {
+              setActiveTab("matches");
+              setSelectedMatchId(null);
+            }}
+            className="flex items-center gap-3 cursor-pointer group hover:opacity-90 active:opacity-75 transition"
+            title="Go to Home"
+          >
+            <div className="w-10 h-10 bg-sky-500 text-white flex items-center justify-center rounded-lg font-black shadow-lg shadow-sky-500/20 group-hover:scale-105 transition-transform duration-200">
               <Trophy className="w-5 h-5 animate-pulse" />
             </div>
             <div>
-              <span className="font-sans font-black text-white text-lg tracking-tight">
-                CENTURY <span className="text-sky-400">SCORER</span>
+              <span className="font-sans font-black text-white text-lg tracking-tight group-hover:text-sky-400 transition-colors">
+                CENTURY <span className="text-sky-400 group-hover:text-white transition-colors">SCORER</span>
               </span>
               <span className="text-[9px] text-emerald-400 font-mono font-bold uppercase tracking-wider block -mt-1 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping"></span> Live Scorer Match Center
@@ -123,10 +142,15 @@ export default function App() {
 
             <button
               onClick={handleSignOut}
-              className="p-2 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 border border-transparent hover:border-soft transition cursor-pointer"
-              title="Sign Out"
+              className={`px-3 py-1.5 rounded-lg border transition flex items-center gap-1.5 text-xs font-bold cursor-pointer ${
+                confirmSignOut 
+                  ? "bg-rose-650/40 text-rose-200 border-rose-500/50 animate-pulse font-extrabold" 
+                  : "text-slate-400 hover:text-rose-450 hover:bg-rose-500/10 border-soft hover:border-rose-500/20"
+              }`}
+              title={confirmSignOut ? "Click once more to confirm log out" : "Sign Out"}
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className={`w-3.5 h-3.5 ${confirmSignOut ? "scale-110" : ""}`} />
+              <span>{confirmSignOut ? "Sure? Log Out" : "Log Out"}</span>
             </button>
           </div>
         </div>

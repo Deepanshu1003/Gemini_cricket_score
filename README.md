@@ -6,16 +6,26 @@
 
 ## 🚀 Key Features & Code Updates
 
-- **Unified Roster Rules (New)**:
+- **Active Batsmen & Bowler cockpit panel (New)**:
+  - Added a highly informative live active play section in the scorer's dashboard. Shows the active striker (with a glowing strike indicator) and non-striker showing personal runs and balls faced.
+  - Displays the active bowler's spell including overs, maidens, runs conceded, wickets taken, and economy rates, updating immediately in real-time!
+- **Total Overs Limit Lockdown Safeguards (New)**:
+  - Implemented automatic locks that block any scoring action once an innings is completed (runs target chased, all wickets down, or overs maximum reached).
+  - Replaces buttons with a friendly, instructive block notice guiding the scorer to "Switch Innings" or "Finish Match". This mathematically prevents "total over more than max over" bugs.
+- **Local Storage manual info & refresh ("I") controls (New)**:
+  - Added interactive Info (`Info` / "I" icon) buttons located in the Scorer Header and the Match Control banner.
+  - Allows scorers to manually force key-value cache fetches or invoke storage synchronization in a single click, popping up dynamic feedback notices.
+- **Consecutive Over & Multi-Inning Ball Timelines (Release 1)**:
+  - Fixed the "why over has 12 balls" issue where deliveries from different innings were overlapping.
+  - Implemented the `inningsNum` tag on each recorded delivery, seamlessly filtering the grouped timeline representation to the active batting innings.
+- **Dynamic Session Control & Bypass Alerts (New)**:
+  - Completely resolved the "Logout button not working" issue caused by iframe container blocks on synchronous browser dialogs (e.g. `window.confirm`). Introduced a stateful, interactive double-click verification countdown inside `/src/App.tsx`.
+  - Replaced all blocking browser `alert()` triggers inside `/src/components/MatchScorer.tsx` with high-contrast, responsive inline error and success banner alerts.
+- **Offline Roster & Sandbox Manager (Release 1)**:
+  - Added an **Offline Local Storage Sandbox Inspector** at the top of the Match Control fixtures list. Displays counts for saved matches, teams, and tournament elements, and features an interactive secure purge option to clear local databases cleanly.
+- **Unified Roster Rules**:
   - **Striker & Non-Striker Uniqueness**: Prevents selecting the same batsman at both ends simultaneously. The dropdown selections automatically filter out the other active batsman.
   - **Consecutive Over Prevention**: Enforces official cricket rules by blocking a bowler from bowling consecutive overs. Options are dynamically filtered, and validation blocks consecutive over assignments.
-- **Over-by-Over Ball Timeline (New)**:
-  - Replaced the continuous raw horizontal list of deliveries with an elegant, grouped **Over-by-Over Ball Timeline**.
-  - Displays specific runs conceded per over, boundary highlighting (emerald for 4s, sky blue for 6s), wicket highlights (rose badge), custom extra scores (WD/NB/B/L), and the active bowler's name.
-- **Dual-Storage Synchronization Engine**:
-  - Automatically defaults to **Cloud Firestore** and **Firebase Auth** in live environments.
-  - Features an **Offline Browser Storage Bypass** (saving complete match, player career cards, tournament tables in secure `localStorage` sandbox) for zero-setup local dev runs.
-  - Optimized offline logout flow reloads the sandboxed context cleanly without blocking or throwing database handler exceptions.
 - **Tournament Brackets**: Auto-generated schedules, ongoing group stages, and tables updated on-the-fly.
 
 ---

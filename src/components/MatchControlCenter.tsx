@@ -3,7 +3,7 @@ import { firebaseService, isOfflineMode } from "../firebaseService";
 import { Team, Tournament, Match } from "../types";
 import { collection, onSnapshot, query, doc } from "firebase/firestore";
 import { db } from "../firebase";
-import { Swords, Plus, Calendar, Pin, Play, Trophy, Users, Shield, ArrowUpRight, CheckCircle2, Trash2 } from "lucide-react";
+import { Swords, Plus, Calendar, Pin, Play, Trophy, Users, Shield, ArrowUpRight, CheckCircle2, Trash2, Info, RefreshCw } from "lucide-react";
 import MatchScorer from "./MatchScorer";
 
 interface MatchControlCenterProps {
@@ -30,6 +30,7 @@ export default function MatchControlCenter({ userId, externalSelectedMatchId, on
   const [selectedTourneyId, setSelectedTourneyId] = useState("");
   const [scorerPin, setScorerPin] = useState("");
   const [errorText, setErrorText] = useState("");
+  const [refreshNotice, setRefreshNotice] = useState(false);
 
   useEffect(() => {
     // 1. Fetch static lists and initial matches
@@ -239,6 +240,56 @@ export default function MatchControlCenter({ userId, externalSelectedMatchId, on
 
       {activeTab === "list" && (
         <div className="space-y-6">
+          {/* Offline Mode Local Database Inspector */}
+          {isOfflineMode() && (
+            <div className="bg-gradient-to-r from-slate-900/40 to-indigo-950/20 p-4 sm:p-5 border border-soft rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 bg-sky-400 rounded-full animate-pulse"></span>
+                  <span className="text-xs uppercase font-extrabold tracking-wider text-sky-400 font-mono">Offline Storage Active</span>
+                </div>
+                <h3 className="text-sm font-extrabold text-white">Full Cricket Scorer Database Sandbox</h3>
+                <p className="text-[11px] text-slate-400 max-w-xl leading-relaxed">
+                  Every squad, tournament fixtures list, registered players career stat sheet, and match scorer setup is kept in your browser's persistent key-value engine. Completely self-contained for Release 1!
+                </p>
+                <div className="flex flex-wrap gap-x-4 gap-y-1.5 pt-1 font-mono text-[10px] text-slate-400">
+                  <span>🏏 Local Matches: <strong className="text-white">{matches.length}</strong></span>
+                  <span>🛡️ Squad Clubs: <strong className="text-white">{teams.length}</strong></span>
+                  <span>🏆 Tournaments: <strong className="text-white">{tournaments.length}</strong></span>
+                </div>
+              </div>
+              <div className="shrink-0 flex items-center gap-2 pr-1 font-mono">
+                <button
+                  onClick={() => {
+                    window.dispatchEvent(new Event("local-db-updated"));
+                    setRefreshNotice(true);
+                    setTimeout(() => setRefreshNotice(false), 3000);
+                  }}
+                  className="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white transition cursor-pointer font-bold text-xs flex items-center gap-1.5 font-sans shadow-md"
+                  title="Force refresh database in local"
+                >
+                  <Info className="w-3.5 h-3.5 text-white animate-pulse" />
+                  <span>{refreshNotice ? "Refreshed!" : "Refresh Local"}</span>
+                </button>
+                <button
+                  onClick={() => {
+                    if (window.confirm("Are you sure you want to completely purge your Offline Database? This deletes all local teams, players, tournaments, and match histories irreversibly!")) {
+                      localStorage.removeItem("century_scorer_offline_teams");
+                      localStorage.removeItem("century_scorer_offline_tournaments");
+                      localStorage.removeItem("century_scorer_offline_players");
+                      localStorage.removeItem("century_scorer_offline_matches");
+                      window.location.reload();
+                    }
+                  }}
+                  className="px-3 py-1.5 rounded-lg border border-soft hover:bg-rose-500/10 text-slate-400 hover:text-rose-400 transition cursor-pointer font-bold text-xs font-mono"
+                  title="Wipe Local database"
+                >
+                  Clear Local DB
+                </button>
+              </div>
+            </div>
+          )}
+
           {loading ? (
             <div className="text-center py-12 text-slate-400 font-mono text-xs">Loading matchups...</div>
           ) : matches.length === 0 ? (

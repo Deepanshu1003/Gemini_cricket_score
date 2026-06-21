@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Match, InningsState, BatsmanMatchStats, BowlerMatchStats, ExtraStats, BallHistoryEntry } from "../types";
 import { firebaseService } from "../firebaseService";
 import { ballsToOvers, calcStrikeRate, calcEconomy } from "../utils/cricket";
-import { Swords, RotateCw, UserPlus, FileSpreadsheet, ArrowLeft, Plus, Check, Play, Settings, AlertTriangle, ShieldCheck } from "lucide-react";
+import { Swords, RotateCw, UserPlus, FileSpreadsheet, ArrowLeft, Plus, Check, Play, Settings, AlertTriangle, ShieldCheck, Info, CheckCircle2 } from "lucide-react";
 
 interface MatchScorerProps {
   userId: string;
@@ -34,6 +34,31 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
 
   // Custom states
   const [showSettings, setShowSettings] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successNotice, setSuccessNotice] = useState<string | null>(null);
+
+  const showError = (msg: string) => {
+    setErrorMessage(msg);
+    setTimeout(() => {
+      setErrorMessage((prev) => (prev === msg ? null : prev));
+    }, 5000);
+  };
+
+  const showSuccess = (msg: string) => {
+    setSuccessNotice(msg);
+    setTimeout(() => {
+      setSuccessNotice((prev) => (prev === msg ? null : prev));
+    }, 5000);
+  };
+
+  // Synchronize active batsman and bowler state from the database
+  React.useEffect(() => {
+    if (match) {
+      setStrikerName(match.currentStriker || "");
+      setNonStrikerName(match.currentNonStriker || "");
+      setBowlerName(match.currentBowler || "");
+    }
+  }, [match?.id, match?.currentStriker, match?.currentNonStriker, match?.currentBowler]);
 
   const isScorerAuthorized = () => {
     if (!match.scorerPin) return true;
@@ -45,13 +70,25 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
     if (pinInput === match.scorerPin) {
       setPinVerified(true);
     } else {
-      alert("Invalid Security PIN entered");
+      showError("Invalid Security PIN entered");
     }
   };
 
   // Helper selectors
   const activeInningsNum = match.currentInnings;
   const innings = activeInningsNum === 1 ? match.innings1 : match.innings2;
+
+  const isInningsCompleted = (): boolean => {
+    if (!innings) return false;
+    if (match.status === "completed") return true;
+    const maxBalls = match.overs * 6;
+    if (activeInningsNum === 1) {
+      return innings.wickets >= 10 || innings.balls >= maxBalls;
+    } else {
+      const targetRuns = (match.innings1?.runs || 0) + 1;
+      return innings.wickets >= 10 || innings.balls >= maxBalls || innings.runs >= targetRuns;
+    }
+  };
 
   // Sync squad rosters
   const battingSquad = innings?.battingTeam === match.teamAName 
@@ -70,14 +107,12 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
   const availableBowlers = bowlingSquad;
 
   const getLastCompletedOverBowler = (): string | null => {
-    if (!innings || !match.ballHistory) return null;
-    const currentOver = Math.floor(innings.balls / 6);
-    if (currentOver === 0) return null;
-
+    if (!innings || !match.ballHistory || match.ballHistory.length === 0) return null;
+    const currentOverNum = Math.floor(innings.balls / 6);
     for (let i = match.ballHistory.length - 1; i >= 0; i--) {
-      const entry = match.ballHistory[i];
-      if (entry.overNum === currentOver - 1) {
-        return entry.bowler;
+      const b = match.ballHistory[i];
+      if (b.overNum < currentOverNum) {
+        return b.bowler;
       }
     }
     return null;
@@ -86,63 +121,77 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
   const handleSelectBatsman = (type: "striker" | "nonstriker", name: string) => {
     if (type === "striker") {
       if (name === nonStrikerName && name !== "") {
-        alert("The striker cannot be the same as the non-striker.");
+        showError("The striker cannot be the same as the non-striker.");
         return;
       }
       setStrikerName(name);
-      addBatsmanToScorecard(name);
+      addBatsmanToScorecard(name, name, nonStrikerName);
     } else {
       if (name === strikerName && name !== "") {
-        alert("The non-striker cannot be the same as the striker.");
+        showError("The non-striker cannot be the same as the striker.");
         return;
       }
       setNonStrikerName(name);
-      addBatsmanToScorecard(name);
+      addBatsmanToScorecard(name, strikerName, name);
     }
   };
 
   const handleSelectBowler = (name: string) => {
     const lastBowler = getLastCompletedOverBowler();
     if (lastBowler && name === lastBowler && name !== "") {
-      alert(`The bowler "${name}" just bowled the previous over. A bowler cannot bowl consecutive overs!`);
+      showError(`The bowler "${name}" just bowled the previous over. A bowler cannot bowl consecutive overs!`);
       return;
     }
     setBowlerName(name);
-    addBowlerToScorecard(name);
+    addBowlerToScorecard(name, name);
   };
 
-  const addBatsmanToScorecard = (name: string) => {
+  const addBatsmanToScorecard = (name: string, updatedStriker: string, updatedNonStriker: string) => {
     if (!innings) return;
     const exists = innings.batsmen.some(b => b.name === name);
-    if (!exists) {
-      const updatedBatsmen = [...innings.batsmen, {
-        name,
-        runs: 0,
-        balls: 0,
-        fours: 0,
-        sixes: 0,
-        howOut: "notout",
-        position: innings.batsmen.length + 1,
-        isBatting: true
-      }];
-      saveInningsState({ ...innings, batsmen: updatedBatsmen });
-    }
+    const updatedBatsmen = exists 
+      ? innings.batsmen 
+      : [...innings.batsmen, {
+          name,
+          runs: 0,
+          balls: 0,
+          fours: 0,
+          sixes: 0,
+          howOut: "notout",
+          position: innings.batsmen.length + 1,
+          isBatting: true
+        }];
+
+    const field = activeInningsNum === 1 ? "innings1" : "innings2";
+    firebaseService.updateMatch(match.id, {
+      [field]: { ...innings, batsmen: updatedBatsmen },
+      currentStriker: updatedStriker,
+      currentNonStriker: updatedNonStriker,
+      currentBowler: bowlerName
+    });
   };
 
-  const addBowlerToScorecard = (name: string) => {
+  const addBowlerToScorecard = (name: string, updatedBowler: string) => {
     if (!innings) return;
     const exists = innings.bowlers.some(b => b.name === name);
-    if (!exists) {
-      const updatedBowlers = [...innings.bowlers, {
-        name,
-        balls: 0,
-        overs: "0.0",
-        maidens: 0,
-        runs: 0,
-        wickets: 0
-      }];
-      saveInningsState({ ...innings, bowlers: updatedBowlers });
-    }
+    const updatedBowlers = exists
+      ? innings.bowlers
+      : [...innings.bowlers, {
+          name,
+          balls: 0,
+          overs: "0.0",
+          maidens: 0,
+          runs: 0,
+          wickets: 0
+        }];
+
+    const field = activeInningsNum === 1 ? "innings1" : "innings2";
+    firebaseService.updateMatch(match.id, {
+      [field]: { ...innings, bowlers: updatedBowlers },
+      currentStriker: strikerName,
+      currentNonStriker: nonStrikerName,
+      currentBowler: updatedBowler
+    });
   };
 
   const saveInningsState = async (updatedInnings: InningsState) => {
@@ -170,6 +219,11 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
   // Ball logic handlers
   const recordRuns = async (runValue: number) => {
     if (!innings || !strikerName || !bowlerName) return;
+
+    if (isInningsCompleted()) {
+      showError("This innings has already been completed. No further balls can be bowled.");
+      return;
+    }
 
     // 1. Update batsman runs and balls faced
     const updatedBatsmen = innings.batsmen.map((b) => {
@@ -211,7 +265,8 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
       runs: runValue,
       extraRuns: 0,
       isWicket: false,
-      description: `${strikerName} scores ${runValue} against ${bowlerName}`
+      description: `${strikerName} scores ${runValue} against ${bowlerName}`,
+      inningsNum: activeInningsNum
     };
 
     const updatedHistory = [...match.ballHistory, entry];
@@ -258,6 +313,11 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
   // Record extras: Wide, No Ball, Bye, Leg Bye
   const handleRecordExtras = async () => {
     if (!innings || !strikerName || !bowlerName) return;
+
+    if (isInningsCompleted()) {
+      showError("This innings has already been completed. No further balls can be bowled.");
+      return;
+    }
     setShowExtraModal(false);
 
     let batsmanRunAdd = 0;
@@ -330,7 +390,8 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
       extrasType: extraType,
       extraRuns: inningsRunAdd,
       isWicket: false,
-      description: `${extraType.toUpperCase()} extra adjoined! +${inningsRunAdd} runs`
+      description: `${extraType.toUpperCase()} extra adjoined! +${inningsRunAdd} runs`,
+      inningsNum: activeInningsNum
     };
 
     // Strike rotation if runs were run odd
@@ -382,6 +443,11 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
   // Record Wicket
   const handleRecordWicket = async () => {
     if (!innings || !strikerName || !bowlerName) return;
+
+    if (isInningsCompleted()) {
+      showError("This innings has already been completed. No further balls can be bowled.");
+      return;
+    }
     setShowWicketModal(false);
 
     const targetOut = dismissedBatsman || strikerName;
@@ -440,7 +506,8 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
       wicketType,
       dismissedBatsman: targetOut,
       fielderName,
-      description: `WICKET! ${targetOut} dismissed: ${wicketType} by ${bowlerName}`
+      description: `WICKET! ${targetOut} dismissed: ${wicketType} by ${bowlerName}`,
+      inningsNum: activeInningsNum
     };
 
     // Clear the out batsman state
@@ -495,7 +562,7 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
     if (activeInningsNum === 1) {
       // Innings 1 ends if 10 wickets are down or overs run out
       if (wickets >= 10 || balls >= maxBalls) {
-        alert("Innings 1 Completed! Please trigger Switch Innings starting target run chase.");
+        showSuccess("Innings 1 Completed! Please trigger Switch Innings starting target run chase.");
       }
     } else {
       // Innings 2 ends if wickets down, max overs reached, or target runs chased down!
@@ -544,7 +611,7 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
         resultSummary
       };
       await firebaseService.finishMatchAndSaveStats(finalMatchModel);
-      alert(`Match Ended! ${resultSummary}. Player careers updated.`);
+      showSuccess(`Match Ended! ${resultSummary}. Player careers updated.`);
     } catch (err) {
       console.error(err);
     }
@@ -558,6 +625,13 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
           <AlertTriangle className="w-10 h-10 text-sky-500 mx-auto" />
           <h2 className="text-base font-extrabold text-white">Security PIN Requested</h2>
           <p className="text-[11px] text-slate-400">This match is score-locked. Enter the scorer PIN code below to continue registering plays.</p>
+          
+          {errorMessage && (
+            <div className="bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs py-2 px-3 rounded-lg font-mono">
+              ⚠️ {errorMessage}
+            </div>
+          )}
+
           <input
             type="password"
             maxLength={6}
@@ -586,6 +660,20 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
       {/* Main Scoring Board (Visible if authorized) */}
       {isScorerAuthorized() && innings && (
         <div className="space-y-5">
+          {/* Notification Messages */}
+          {errorMessage && (
+            <div className="bg-rose-550/15 border border-rose-500/35 text-rose-300 text-xs py-3 px-4 rounded-xl flex items-center justify-between font-mono shadow-lg">
+              <span className="flex items-center gap-2">⚠️ {errorMessage}</span>
+              <button onClick={() => setErrorMessage(null)} className="hover:text-white font-black text-xs px-2 cursor-pointer">×</button>
+            </div>
+          )}
+          {successNotice && (
+            <div className="bg-emerald-550/15 border border-emerald-500/35 text-emerald-300 text-xs py-3 px-4 rounded-xl flex items-center justify-between font-mono shadow-lg">
+              <span className="flex items-center gap-2">✓ {successNotice}</span>
+              <button onClick={() => setSuccessNotice(null)} className="hover:text-white font-black text-xs px-2 cursor-pointer">×</button>
+            </div>
+          )}
+
           {/* Header Controls */}
           <div className="flex items-center justify-between border-b border-soft pb-3.5">
             <button
@@ -596,6 +684,16 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
             </button>
 
             <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  window.dispatchEvent(new Event("local-db-updated"));
+                  showSuccess("Local database cache refreshed successfully!");
+                }}
+                className="p-1.5 bg-brand-action hover:bg-slate-755 border border-soft text-slate-300 hover:text-white rounded transition cursor-pointer flex items-center justify-center"
+                title="Refresh and sync data in local"
+              >
+                <Info className="w-3.5 h-3.5 text-sky-400" />
+              </button>
               <span className={`text-[9px] px-2 py-0.5 rounded font-bold font-mono border uppercase tracking-wider ${match.status === "completed" ? "bg-slate-900 text-slate-400 border-soft" : "bg-rose-500/10 text-rose-350 border-rose-500/20"}`}>
                 {match.status}
               </span>
@@ -721,15 +819,76 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
                   <h3 className="font-extrabold text-white text-[11px] uppercase tracking-wider flex items-center gap-1.5 border-b border-soft pb-2 mb-3.5">
                     <Swords className="w-4 h-4 text-sky-400" /> Scorer keypad panels
                   </h3>
-
                   {!strikerName || !nonStrikerName || !bowlerName ? (
                     <div className="bg-slate-950/45 rounded-lg p-6 border border-soft text-center space-y-1.55">
                       <AlertTriangle className="w-6 h-6 text-sky-500 mx-auto" />
                       <p className="font-bold text-xs text-slate-205">Scoring Controls Locked</p>
                       <p className="text-[10px] text-slate-500 max-w-sm mx-auto">Please assign an active striker, non-striker, and bowler in the roster setup to unlock scoring controls.</p>
                     </div>
+                  ) : isInningsCompleted() ? (
+                    <div className="bg-emerald-950/20 border border-emerald-500/30 rounded-lg p-5 text-center space-y-3 shadow-inner">
+                      <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto animate-pulse" />
+                      <p className="font-extrabold text-xs text-emerald-300 uppercase tracking-widest font-mono">Innings Complete</p>
+                      <p className="text-[11px] text-slate-350 max-w-sm mx-auto leading-relaxed">
+                        {activeInningsNum === 1
+                          ? "Innings 1 is completed (overs maximum reached or squad bowled-out). Click 'Switch Innings' below to start the target run chase!"
+                          : "Innings 2 is complete! Run chase objective achieved or innings over limit. Select 'Finish Match' below to calculate and save final stats."
+                        }
+                      </p>
+                    </div>
                   ) : (
-                    <div className="space-y-3.5">
+                    <div className="space-y-4">
+                      {/* Live Active Play Batsman & Bowler Details */}
+                      {(() => {
+                        const strikerStats = innings.batsmen.find((b) => b.name === strikerName);
+                        const nonStrikerStats = innings.batsmen.find((b) => b.name === nonStrikerName);
+                        const currentBowlerStats = innings.bowlers.find((b) => b.name === bowlerName);
+
+                        return (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-slate-950/70 p-3.5 rounded-xl border border-soft/75 shadow-inner">
+                            {/* Batsmen Live Stats */}
+                            <div className="space-y-1.5">
+                              <span className="text-[9px] font-bold text-sky-400 uppercase tracking-widest font-mono block">🏏 Live Batting Pair</span>
+                              <div className="space-y-1">
+                                <div className="flex items-center justify-between text-xs bg-slate-900/90 p-2 rounded-lg border border-sky-500/15">
+                                  <div className="flex items-center gap-1.5 truncate">
+                                    <span className="w-1.5 h-1.5 bg-sky-450 rounded-full animate-ping shrink-0" />
+                                    <span className="font-extrabold text-white truncate">{strikerName} *</span>
+                                  </div>
+                                  <span className="font-mono text-xs text-sky-400 font-bold shrink-0">
+                                    {strikerStats?.runs ?? 0} <span className="text-[10px] text-slate-500 font-normal">({strikerStats?.balls ?? 0}b)</span>
+                                  </span>
+                                </div>
+                                <div className="flex items-center justify-between text-xs bg-slate-900/40 p-2 rounded-lg border border-soft/40">
+                                  <span className="text-slate-400 truncate">{nonStrikerName}</span>
+                                  <span className="font-mono text-xs text-slate-300 font-bold shrink-0">
+                                    {nonStrikerStats?.runs ?? 0} <span className="text-[10px] text-slate-500 font-normal">({nonStrikerStats?.balls ?? 0}b)</span>
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Bowler Live Spell */}
+                            <div className="space-y-1.5">
+                              <span className="text-[9px] font-bold text-rose-400 uppercase tracking-widest font-mono block">🥎 Active Bowler spell</span>
+                              <div className="bg-slate-900/90 p-2 rounded-lg border border-soft/60 flex flex-col justify-between h-[67px]">
+                                <div className="flex items-center justify-between">
+                                  <span className="font-extrabold text-white text-xs truncate">{bowlerName}</span>
+                                  <span className="text-xs font-mono font-bold text-rose-450">
+                                    {currentBowlerStats?.wickets ?? 0} <span className="text-[9px] text-slate-500 font-normal uppercase">Wkt</span>
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-center text-[10px] text-slate-400 font-mono border-t border-soft/30 pt-1 mt-1">
+                                  <span>Ov: <strong className="text-white">{ballsToOvers(currentBowlerStats?.balls ?? 0)}</strong></span>
+                                  <span>Runs: <strong className="text-rose-400">{currentBowlerStats?.runs ?? 0}</strong></span>
+                                  <span>Econ: <strong className="text-sky-450">{calcEconomy(currentBowlerStats?.runs ?? 0, currentBowlerStats?.balls ?? 0)}</strong></span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })()}
+
                       {/* Runs keys */}
                       <p className="text-[9px] text-slate-500 uppercase font-extrabold tracking-widest font-mono">Normal runs scoring</p>
                       <div className="grid grid-cols-4 md:grid-cols-7 gap-2">
@@ -790,13 +949,22 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
           )}
 
           {/* Current Ball-by-ball timeline grouped by over */}
-          <div className="bg-brand-surface p-3.5 border border-soft rounded-xl space-y-3">
-            <span className="text-[9px] uppercase font-bold text-slate-450 tracking-wider font-mono block">Over-by-Over Ball Timeline</span>
-            <div className="space-y-2.5">
+          <div className="bg-brand-surface p-4 border border-soft rounded-xl space-y-4">
+            <span className="text-[10px] uppercase font-bold text-sky-400 tracking-wider font-mono block">Over-by-Over Ball Timeline</span>
+            <div className="space-y-3">
               {(() => {
+                // Filter the balls to those belonging to the active innings
+                const filteredBalls = match.ballHistory.filter((ball) => {
+                  if (ball.inningsNum !== undefined) {
+                    return ball.inningsNum === activeInningsNum;
+                  }
+                  // Fallback for older entries
+                  return activeInningsNum === 1;
+                });
+
                 // Group the balls by overNum
                 const oversMap: { [key: number]: typeof match.ballHistory } = {};
-                match.ballHistory.forEach((ball) => {
+                filteredBalls.forEach((ball) => {
                   const ovStr = ball.overNum;
                   if (!oversMap[ovStr]) {
                     oversMap[ovStr] = [];
@@ -808,7 +976,7 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
 
                 if (sortedOverNums.length === 0) {
                   return (
-                    <div className="text-[10px] text-slate-500 italic">
+                    <div className="text-xs text-slate-500 italic p-3 text-center border border-dashed border-soft rounded-lg">
                       Pre-play match setup. Deliver first ball to start timeline.
                     </div>
                   );
@@ -820,35 +988,62 @@ export default function MatchScorer({ userId, match, onBack }: MatchScorerProps)
                   const overRuns = balls.reduce((total, b) => total + b.runs + b.extraRuns, 0);
                   const isCurrentOver = ov === Math.floor((innings?.balls || 0) / 6);
                   return (
-                    <div key={ov} className={`flex items-center gap-3 p-2 rounded-lg border ${isCurrentOver ? 'bg-sky-950/25 border-sky-500/25' : 'bg-slate-950/40 border-soft/50'}`}>
-                      <div className="shrink-0 flex flex-col min-w-[55px]">
-                        <span className="text-[10px] font-extrabold text-slate-300 font-mono">OVER {ov + 1}</span>
-                        <span className="text-[9px] text-slate-500 font-mono">{overRuns} runs</span>
+                    <div key={ov} className={`flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-xl border transition ${isCurrentOver ? 'bg-sky-950/20 border-sky-500/30 shadow-lg shadow-sky-950/10' : 'bg-slate-950/40 border-soft/50'}`}>
+                      <div className="flex items-center gap-3">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-mono font-bold text-xs ${isCurrentOver ? 'bg-sky-500 text-white animate-pulse' : 'bg-slate-800 text-slate-300'}`}>
+                          {ov + 1}
+                        </div>
+                        <div>
+                          <span className="text-xs font-black text-slate-100 uppercase tracking-wide font-mono block">Over {ov + 1}</span>
+                          <span className="text-[10px] text-slate-400 block font-semibold leading-none">Bowled by <strong className="text-slate-300">{balls[0]?.bowler || "Unknown"}</strong></span>
+                        </div>
                       </div>
-                      <div className="flex flex-wrap gap-1.5 items-center">
-                        {balls.map((b, bIdx) => (
-                          <div
-                            key={bIdx}
-                            title={b.description}
-                            className={`min-w-7 h-7 rounded border flex items-center justify-center font-bold text-[10px] select-none ${
-                              b.isWicket 
-                                ? "bg-rose-500/20 text-rose-300 border-rose-500/40" 
-                                : b.extrasType 
-                                  ? "bg-amber-500/20 text-amber-300 border-amber-500/30" 
-                                  : b.runs === 4 
-                                    ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40" 
-                                    : b.runs === 6 
-                                      ? "bg-sky-500/20 text-sky-300 border-sky-450/40" 
-                                      : "bg-slate-900 text-slate-400 border-soft"
-                            }`}
-                          >
-                            {b.isWicket ? "W" : b.extrasType === "wide" ? "WD" : b.extrasType === "noball" ? "NB" : b.extrasType === "bye" ? `${b.extraRuns}B` : b.extrasType === "legbye" ? `${b.extraRuns}L` : b.runs === 0 ? "•" : b.runs}
-                          </div>
-                        ))}
+
+                      {/* Displaying balls beautifully */}
+                      <div className="flex flex-wrap gap-2.5 items-center">
+                        {(() => {
+                          let legitCount = 0;
+                          return balls.map((b, bIdx) => {
+                            const isExtra = b.extrasType === "wide" || b.extrasType === "noball";
+                            if (!isExtra) {
+                              legitCount++;
+                            }
+                            const ballLabel = isExtra ? "Extra" : `Ball ${legitCount}`;
+
+                            return (
+                              <div key={bIdx} className="flex flex-col items-center gap-1 font-mono">
+                                <div
+                                  title={b.description}
+                                  className={`w-8 h-8 rounded-full border flex items-center justify-center font-black text-[11px] shadow-sm select-none transition ${
+                                    b.isWicket 
+                                      ? "bg-rose-600/35 text-rose-200 border-rose-500/50 scale-105" 
+                                      : b.extrasType 
+                                        ? "bg-amber-600/25 text-amber-300 border-amber-500/40" 
+                                        : b.runs === 4 
+                                          ? "bg-emerald-600/30 text-emerald-300 border-emerald-500/50 font-bold" 
+                                          : b.runs === 6 
+                                            ? "bg-sky-600/30 text-sky-400 border-sky-500/50 font-bold scale-105" 
+                                            : "bg-slate-900 text-slate-400 border-soft"
+                                  }`}
+                                >
+                                  {b.isWicket ? "W" : b.extrasType === "wide" ? "WD" : b.extrasType === "noball" ? "NB" : b.extrasType === "bye" ? `${b.extraRuns}B` : b.extrasType === "legbye" ? `${b.extraRuns}L` : b.runs === 0 ? "•" : b.runs}
+                                </div>
+                                <span className={`text-[8px] font-bold uppercase tracking-wider ${isExtra ? 'text-amber-500 font-mono' : 'text-slate-500'}`}>
+                                  {ballLabel}
+                                </span>
+                              </div>
+                            );
+                          });
+                        })()}
                       </div>
-                      <span className="text-[9px] text-slate-450 ml-auto font-mono max-w-[150px] truncate text-right hidden sm:block">
-                        Bowler: {balls[0]?.bowler || "Unknown"}
-                      </span>
+
+                      {/* Over Total Summary */}
+                      <div className="text-right flex items-center md:flex-col justify-between md:justify-center border-t border-soft/50 md:border-none pt-2.5 md:pt-0 shrink-0 min-w-[70px]">
+                        <span className="text-[9px] uppercase text-slate-500 font-bold tracking-wider font-mono">Over runs</span>
+                        <span className={`text-xs font-black font-mono ${overRuns > 12 ? 'text-sky-400' : 'text-slate-200'}`}>
+                          {overRuns} Runs
+                        </span>
+                      </div>
                     </div>
                   );
                 });
