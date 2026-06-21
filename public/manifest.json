@@ -1,0 +1,23 @@
+{
+  "name": "CenturyScorer Match Hub",
+  "short_name": "CenturyScorer",
+  "description": "Cricket Match Day Live Scorer, Stats, and Tournaments Tracker",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b1329",
+  "theme_color": "#0284c7",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=192&h=192&fit=crop",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=512&h=512&fit=crop",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+	"appId": "com.centuryscorer.matchapp",
+	"appName": "CenturyScorer Match Hub",
+	"webDir": "dist",
+	"server": {
+		"androidScheme": "https"
+	}
+}

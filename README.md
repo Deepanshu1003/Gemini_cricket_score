@@ -90,6 +90,43 @@ npm run build
 
 ---
 
+## 📱 Android & Mobile Deployment Solutions
+
+We have configured **two powerful options** to run and install this application natively on Android devices:
+
+### Option A: Native Android App (via Capacitor)
+The project comes with a fully initialized **Capacitor Android native app wrapper** inside the `/android` folder. This is a real Android Studio project! 
+
+To run or build it locally:
+1. Make sure you have [Android Studio](https://developer.android.com/studio) installed on your machine.
+2. Build the web app assets first:
+   ```bash
+   npm run build
+   ```
+3. Sync the compiled static assets into the native Android folder:
+   ```bash
+   npx cap sync
+   ```
+4. Open the project in Android Studio:
+   ```bash
+   npx cap open android
+   ```
+5. From Android Studio, you can immediately:
+   - Run the app on an Android Emulator or your connected physical phone!
+   - Select **Build > Build Bundle(s) / APK(s) > Build APK(s)** to generate a standalone `.apk` you can share and install on on-field devices.
+
+---
+
+### Option B: Progressive Web App (PWA) Install
+The app is engineered with a **Chrome-compliant Web App Manifest** (`manifest.json`):
+1. Simply deploy the web application or host it on your local network/cloud.
+2. Open the application's URL in **Google Chrome** on your Android device.
+3. Tap the **three-dot menu icon** in the top-right corner.
+4. Select **"Add to Home Screen"** or **"Install App"**.
+5. The CenturyScorer will be installed directly on your Android phone's launcher, featuring an immersive full-screen design, its own splash screen, adaptive orientation support, and local caching!
+
+---
+
 ## 🔒 Security Hardening
 
 The application is secured with custom Zero-Trust Firestore security rules in `firestore.rules` to prevent identity spoofing and payload poisoning:

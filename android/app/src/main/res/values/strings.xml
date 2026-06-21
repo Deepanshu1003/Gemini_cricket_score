@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">CenturyScorer Match Hub</string>
+    <string name="title_activity_main">CenturyScorer Match Hub</string>
+    <string name="package_name">com.centuryscorer.matchapp</string>
+    <string name="custom_url_scheme">com.centuryscorer.matchapp</string>
+</resources>
