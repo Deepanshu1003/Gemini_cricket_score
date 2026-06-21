@@ -37,19 +37,13 @@ export default function TournamentManager({ userId, onSelectMatch, onNavigateToT
   const loadData = async () => {
     try {
       setLoading(true);
-      const [tList, teamList] = await Promise.all([
+      const [tList, teamList, mList] = await Promise.all([
         firebaseService.getTournaments(),
-        firebaseService.getTeams()
+        firebaseService.getTeams(),
+        firebaseService.getMatches()
       ]);
       setTournaments(tList);
       setTeams(teamList);
-
-      // Load all matches to calculate tables on the fly
-      const matchesSnap = await getDocs(collection(db, "matches"));
-      const mList: Match[] = [];
-      matchesSnap.forEach((doc) => {
-        mList.push(doc.data() as Match);
-      });
       setMatches(mList);
     } catch (err) {
       console.error(err);
@@ -60,6 +54,11 @@ export default function TournamentManager({ userId, onSelectMatch, onNavigateToT
 
   useEffect(() => {
     loadData();
+
+    window.addEventListener("local-db-updated", loadData);
+    return () => {
+      window.removeEventListener("local-db-updated", loadData);
+    };
   }, []);
 
   const handleSelectTournament = (tourney: Tournament) => {

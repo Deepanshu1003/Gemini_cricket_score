@@ -33,17 +33,66 @@ export const emptyPlayerStats = (): PlayerStats => ({
   runOuts: 0,
 });
 
+// Helper to check if offline guest mode is active
+const OFFLINE_TEAMS_KEY = "century_scorer_offline_teams";
+const OFFLINE_TOURNEY_KEY = "century_scorer_offline_tournaments";
+const OFFLINE_PLAYERS_KEY = "century_scorer_offline_players";
+const OFFLINE_MATCHES_KEY = "century_scorer_offline_matches";
+
+export const isOfflineMode = (): boolean => {
+  const userStr = localStorage.getItem("offline_local_user");
+  if (userStr) {
+    try {
+      const u = JSON.parse(userStr);
+      return !!(u && u.uid && u.uid.startsWith("offline_"));
+    } catch (e) {
+      return false;
+    }
+  }
+  return false;
+};
+
+const getLocalCollection = <T>(key: string): T[] => {
+  const str = localStorage.getItem(key);
+  if (!str) return [];
+  try {
+    return JSON.parse(str);
+  } catch (e) {
+    return [];
+  }
+};
+
+const saveLocalCollection = <T>(key: string, data: T[]) => {
+  localStorage.setItem(key, JSON.stringify(data));
+  // Dispatch dynamic custom event so components re-sync state immediately
+  window.dispatchEvent(new Event("local-db-updated"));
+};
+
 export const firebaseService = {
   // Teams
   async createTeam(name: string, playerNames: string[], createdBy: string): Promise<string> {
     const id = generateId();
-    await setDoc(doc(db, TEAM_COLL, id), {
+    const finalTeam: Team = {
       id,
       name,
       playerNames,
       createdBy,
       createdAt: new Date().toISOString()
-    });
+    };
+
+    if (isOfflineMode()) {
+      const list = getLocalCollection<Team>(OFFLINE_TEAMS_KEY);
+      list.push(finalTeam);
+      saveLocalCollection(OFFLINE_TEAMS_KEY, list);
+
+      // Proactively initialize entries in players collection
+      for (const pName of playerNames) {
+        await this.initializePlayer(pName, id, name, createdBy);
+      }
+      return id;
+    }
+
+    await setDoc(doc(db, TEAM_COLL, id), finalTeam);
 
     // Proactively initialize entries in players collection
     for (const pName of playerNames) {
@@ -53,6 +102,9 @@ export const firebaseService = {
   },
 
   async getTeams(): Promise<Team[]> {
+    if (isOfflineMode()) {
+      return getLocalCollection<Team>(OFFLINE_TEAMS_KEY);
+    }
     const snap = await getDocs(collection(db, TEAM_COLL));
     const teams: Team[] = [];
     snap.forEach((doc) => {
@@ -76,11 +128,22 @@ export const firebaseService = {
       creatorName,
       createdAt: new Date().toISOString()
     };
+
+    if (isOfflineMode()) {
+      const list = getLocalCollection<Tournament>(OFFLINE_TOURNEY_KEY);
+      list.push(tourney);
+      saveLocalCollection(OFFLINE_TOURNEY_KEY, list);
+      return id;
+    }
+
     await setDoc(doc(db, TOURNEY_COLL, id), tourney);
     return id;
   },
 
   async getTournaments(): Promise<Tournament[]> {
+    if (isOfflineMode()) {
+      return getLocalCollection<Tournament>(OFFLINE_TOURNEY_KEY);
+    }
     const snap = await getDocs(collection(db, TOURNEY_COLL));
     const list: Tournament[] = [];
     snap.forEach((doc) => {
@@ -90,27 +153,50 @@ export const firebaseService = {
   },
 
   async updateTournament(tourneyId: string, updates: Partial<Tournament>) {
+    if (isOfflineMode()) {
+      const list = getLocalCollection<Tournament>(OFFLINE_TOURNEY_KEY);
+      const idx = list.findIndex(t => t.id === tourneyId);
+      if (idx !== -1) {
+        list[idx] = { ...list[idx], ...updates };
+        saveLocalCollection(OFFLINE_TOURNEY_KEY, list);
+      }
+      return;
+    }
     await updateDoc(doc(db, TOURNEY_COLL, tourneyId), updates);
   },
 
   // Players
   async initializePlayer(name: string, teamId: string, teamName: string, createdBy: string) {
     const playerCleanId = `${teamId}_${name.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase()}`;
+    const newPr: Player = {
+      id: playerCleanId,
+      name,
+      teamId,
+      teamName,
+      createdBy,
+      stats: emptyPlayerStats()
+    };
+
+    if (isOfflineMode()) {
+      const list = getLocalCollection<Player>(OFFLINE_PLAYERS_KEY);
+      if (!list.some(p => p.id === playerCleanId)) {
+        list.push(newPr);
+        saveLocalCollection(OFFLINE_PLAYERS_KEY, list);
+      }
+      return;
+    }
+
     const dRef = doc(db, PLAYER_COLL, playerCleanId);
     const snap = await getDoc(dRef);
     if (!snap.exists()) {
-      await setDoc(dRef, {
-        id: playerCleanId,
-        name,
-        teamId,
-        teamName,
-        createdBy,
-        stats: emptyPlayerStats()
-      });
+      await setDoc(dRef, newPr);
     }
   },
 
   async getPlayers(): Promise<Player[]> {
+    if (isOfflineMode()) {
+      return getLocalCollection<Player>(OFFLINE_PLAYERS_KEY);
+    }
     const snap = await getDocs(collection(db, PLAYER_COLL));
     const list: Player[] = [];
     snap.forEach((doc) => {
@@ -164,6 +250,23 @@ export const firebaseService = {
       }
     };
 
+    if (isOfflineMode()) {
+      const list = getLocalCollection<Match>(OFFLINE_MATCHES_KEY);
+      list.push(finalMatch);
+      saveLocalCollection(OFFLINE_MATCHES_KEY, list);
+
+      if (matchData.tournamentId) {
+        const tList = getLocalCollection<Tournament>(OFFLINE_TOURNEY_KEY);
+        const tIdx = tList.findIndex(t => t.id === matchData.tournamentId);
+        if (tIdx !== -1) {
+          const curList = tList[tIdx].matchesList || [];
+          tList[tIdx].matchesList = [...curList, id];
+          saveLocalCollection(OFFLINE_TOURNEY_KEY, tList);
+        }
+      }
+      return id;
+    }
+
     await setDoc(doc(db, MATCH_COLL, id), finalMatch);
 
     // If part of a tournament, register it there
@@ -181,11 +284,38 @@ export const firebaseService = {
     return id;
   },
 
+  async getMatches(): Promise<Match[]> {
+    if (isOfflineMode()) {
+      return getLocalCollection<Match>(OFFLINE_MATCHES_KEY);
+    }
+    const snap = await getDocs(collection(db, MATCH_COLL));
+    const list: Match[] = [];
+    snap.forEach((doc) => {
+      list.push(doc.data() as Match);
+    });
+    return list;
+  },
+
   async updateMatch(matchId: string, updates: Partial<Match>) {
+    if (isOfflineMode()) {
+      const list = getLocalCollection<Match>(OFFLINE_MATCHES_KEY);
+      const idx = list.findIndex(m => m.id === matchId);
+      if (idx !== -1) {
+        list[idx] = { ...list[idx], ...updates };
+        saveLocalCollection(OFFLINE_MATCHES_KEY, list);
+      }
+      return;
+    }
     await updateDoc(doc(db, MATCH_COLL, matchId), updates);
   },
 
   async deleteMatch(matchId: string) {
+    if (isOfflineMode()) {
+      const list = getLocalCollection<Match>(OFFLINE_MATCHES_KEY);
+      const updatedList = list.filter(m => m.id !== matchId);
+      saveLocalCollection(OFFLINE_MATCHES_KEY, updatedList);
+      return;
+    }
     await deleteDoc(doc(db, MATCH_COLL, matchId));
   },
 
@@ -208,15 +338,25 @@ export const firebaseService = {
       const batsmen = innings.batsmen || [];
       for (const bat of batsmen) {
         const playerCleanId = `${battingTeamId}_${bat.name.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase()}`;
-        const pRef = doc(db, PLAYER_COLL, playerCleanId);
         
         let existingStats = emptyPlayerStats();
-        const pSnap = await getDoc(pRef);
-        if (pSnap.exists()) {
-          existingStats = pSnap.data().stats || emptyPlayerStats();
+        let existingPlayer: Player | null = null;
+
+        if (isOfflineMode()) {
+          const localList = getLocalCollection<Player>(OFFLINE_PLAYERS_KEY);
+          existingPlayer = localList.find(p => p.id === playerCleanId) || null;
+          if (existingPlayer) {
+            existingStats = existingPlayer.stats || emptyPlayerStats();
+          }
+        } else {
+          const pRef = doc(db, PLAYER_COLL, playerCleanId);
+          const pSnap = await getDoc(pRef);
+          if (pSnap.exists()) {
+            existingPlayer = pSnap.data() as Player;
+            existingStats = existingPlayer.stats || emptyPlayerStats();
+          }
         }
 
-        const isOut = bat.howOut !== "notout" && bat.howOut !== "retired" && bat.howOut !== "";
         const isNotOut = bat.howOut === "notout";
 
         // Increment stats
@@ -232,29 +372,53 @@ export const firebaseService = {
           highScore: Math.max(existingStats.highScore || 0, bat.runs),
           fifties: (existingStats.fifties || 0) + (bat.runs >= 50 && bat.runs < 100 ? 1 : 0),
           hundreds: (existingStats.hundreds || 0) + (bat.runs >= 100 ? 1 : 0),
-          // Bowling and fielding stay the same in batting loop
         };
 
-        await setDoc(pRef, {
+        const finalPr: Player = {
           id: playerCleanId,
           name: bat.name,
           teamId: battingTeamId,
           teamName: battingTeamName,
           createdBy: match.createdBy,
           stats: updatedStats
-        }, { merge: true });
+        };
+
+        if (isOfflineMode()) {
+          const localList = getLocalCollection<Player>(OFFLINE_PLAYERS_KEY);
+          const idx = localList.findIndex(p => p.id === playerCleanId);
+          if (idx !== -1) {
+            localList[idx] = finalPr;
+          } else {
+            localList.push(finalPr);
+          }
+          saveLocalCollection(OFFLINE_PLAYERS_KEY, localList);
+        } else {
+          const pRef = doc(db, PLAYER_COLL, playerCleanId);
+          await setDoc(pRef, finalPr, { merge: true });
+        }
       }
 
       // Bowling stats
       const bowlers = innings.bowlers || [];
       for (const bowl of bowlers) {
         const playerCleanId = `${bowlingTeamId}_${bowl.name.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase()}`;
-        const pRef = doc(db, PLAYER_COLL, playerCleanId);
-
+        
         let existingStats = emptyPlayerStats();
-        const pSnap = await getDoc(pRef);
-        if (pSnap.exists()) {
-          existingStats = pSnap.data().stats || emptyPlayerStats();
+        let existingPlayer: Player | null = null;
+
+        if (isOfflineMode()) {
+          const localList = getLocalCollection<Player>(OFFLINE_PLAYERS_KEY);
+          existingPlayer = localList.find(p => p.id === playerCleanId) || null;
+          if (existingPlayer) {
+            existingStats = existingPlayer.stats || emptyPlayerStats();
+          }
+        } else {
+          const pRef = doc(db, PLAYER_COLL, playerCleanId);
+          const pSnap = await getDoc(pRef);
+          if (pSnap.exists()) {
+            existingPlayer = pSnap.data() as Player;
+            existingStats = existingPlayer.stats || emptyPlayerStats();
+          }
         }
 
         const isFiveWickets = bowl.wickets >= 5;
@@ -271,7 +435,6 @@ export const firebaseService = {
 
         const updatedStats: PlayerStats = {
           ...existingStats,
-          // If they didn't bat, matches still increments if they bowled
           matches: (existingStats.matches || 0) + 1,
           ballsBowled: (existingStats.ballsBowled || 0) + bowl.balls,
           oversBowled: (existingStats.oversBowled || 0) + (bowl.balls / 6),
@@ -283,14 +446,28 @@ export const firebaseService = {
           bestBowlingRuns: isNewBest ? bowl.runs : (existingStats.bestBowlingRuns || 0),
         };
 
-        await setDoc(pRef, {
+        const finalPr: Player = {
           id: playerCleanId,
           name: bowl.name,
           teamId: bowlingTeamId,
           teamName: bowlingTeamName,
           createdBy: match.createdBy,
           stats: updatedStats
-        }, { merge: true });
+        };
+
+        if (isOfflineMode()) {
+          const localList = getLocalCollection<Player>(OFFLINE_PLAYERS_KEY);
+          const idx = localList.findIndex(p => p.id === playerCleanId);
+          if (idx !== -1) {
+            localList[idx] = finalPr;
+          } else {
+            localList.push(finalPr);
+          }
+          saveLocalCollection(OFFLINE_PLAYERS_KEY, localList);
+        } else {
+          const pRef = doc(db, PLAYER_COLL, playerCleanId);
+          await setDoc(pRef, finalPr, { merge: true });
+        }
       }
 
       // Fielding stats compiled from wickets in ball history
@@ -298,15 +475,24 @@ export const firebaseService = {
       const dismissalsWithFielders = history.filter(b => b.isWicket && b.fielderName);
 
       for (const dis of dismissalsWithFielders) {
-        // Find which team this fielder belongs to. 
-        // If dismissals was during battingTeamId innings, fielder belongs to bowlingTeamId
         const playerCleanId = `${bowlingTeamId}_${dis.fielderName!.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase()}`;
-        const pRef = doc(db, PLAYER_COLL, playerCleanId);
-
+        
         let existingStats = emptyPlayerStats();
-        const pSnap = await getDoc(pRef);
-        if (pSnap.exists()) {
-          existingStats = pSnap.data().stats || emptyPlayerStats();
+        let existingPlayer: Player | null = null;
+
+        if (isOfflineMode()) {
+          const localList = getLocalCollection<Player>(OFFLINE_PLAYERS_KEY);
+          existingPlayer = localList.find(p => p.id === playerCleanId) || null;
+          if (existingPlayer) {
+            existingStats = existingPlayer.stats || emptyPlayerStats();
+          }
+        } else {
+          const pRef = doc(db, PLAYER_COLL, playerCleanId);
+          const pSnap = await getDoc(pRef);
+          if (pSnap.exists()) {
+            existingPlayer = pSnap.data() as Player;
+            existingStats = existingPlayer.stats || emptyPlayerStats();
+          }
         }
 
         const isCatch = dis.wicketType?.toLowerCase() === "caught";
@@ -320,14 +506,28 @@ export const firebaseService = {
           runOuts: (existingStats.runOuts || 0) + (isRunOut ? 1 : 0),
         };
 
-        await setDoc(pRef, {
+        const finalPr: Player = {
           id: playerCleanId,
           name: dis.fielderName!,
           teamId: bowlingTeamId,
           teamName: bowlingTeamName,
           createdBy: match.createdBy,
           stats: updatedStats
-        }, { merge: true });
+        };
+
+        if (isOfflineMode()) {
+          const localList = getLocalCollection<Player>(OFFLINE_PLAYERS_KEY);
+          const idx = localList.findIndex(p => p.id === playerCleanId);
+          if (idx !== -1) {
+            localList[idx] = finalPr;
+          } else {
+            localList.push(finalPr);
+          }
+          saveLocalCollection(OFFLINE_PLAYERS_KEY, localList);
+        } else {
+          const pRef = doc(db, PLAYER_COLL, playerCleanId);
+          await setDoc(pRef, finalPr, { merge: true });
+        }
       }
     };
 

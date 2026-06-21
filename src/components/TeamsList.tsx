@@ -30,6 +30,11 @@ export default function TeamsList({ userId }: TeamsListProps) {
 
   useEffect(() => {
     loadTeams();
+
+    window.addEventListener("local-db-updated", loadTeams);
+    return () => {
+      window.removeEventListener("local-db-updated", loadTeams);
+    };
   }, []);
 
   const handleAddPlayer = (e: React.FormEvent) => {

@@ -24,6 +24,11 @@ export default function PlayerStats() {
       }
     };
     loadPlayers();
+
+    window.addEventListener("local-db-updated", loadPlayers);
+    return () => {
+      window.removeEventListener("local-db-updated", loadPlayers);
+    };
   }, []);
 
   const filteredPlayers = players.filter((player) => {

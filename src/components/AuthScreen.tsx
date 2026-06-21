@@ -54,6 +54,25 @@ export default function AuthScreen({ onSuccess }: AuthScreenProps) {
     }
   };
 
+  const handleLocalStorageBypass = () => {
+    setError("");
+    setErrCode("");
+    const mockUser = {
+      uid: "offline_scorer",
+      email: "local_offline_scorer@centuryscorer.local",
+      isAnonymous: true,
+      isOffline: true
+    };
+    try {
+      localStorage.setItem("offline_local_user", JSON.stringify(mockUser));
+      onSuccess();
+      window.location.reload();
+    } catch (err: any) {
+      console.error(err);
+      setError("Failed to initialize offline local session storage.");
+    }
+  };
+
   return (
     <div id="auth-screen-container" className="min-h-screen bg-brand-bg text-slate-100 flex flex-col justify-center items-center p-4 relative overflow-hidden">
       {/* Decorative high-tech telemetry rings */}
@@ -105,6 +124,23 @@ export default function AuthScreen({ onSuccess }: AuthScreenProps) {
                 <p className="text-[10px] text-slate-500 italic mt-2 border-t border-soft/50 pt-1.5 font-mono">
                   No code changes needed! Once saved in the Console, login and guest modes will instantly work.
                 </p>
+
+                <div className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-lg mt-3 text-amber-300">
+                  <span className="font-extrabold text-[10px] uppercase tracking-wider block font-mono text-yellow-450">
+                    ⚠️ PROJECT RESTRICTED BY OWNER?
+                  </span>
+                  <p className="text-[10px] text-slate-300 mt-1 leading-normal">
+                    If you don't have access or see security alerts, you can bypass authentication and save matches locally using secure browser Local Storage:
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleLocalStorageBypass}
+                    className="w-full mt-2 bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white border border-amber-500/30 text-[10px] font-bold py-1.5 px-3 rounded-lg flex items-center justify-center gap-1.5 cursor-pointer font-sans transition"
+                  >
+                    <Sparkles className="w-3 h-3 text-yellow-300" />
+                    BYPASS & USE OFFLINE LOCAL STORAGE
+                  </button>
+                </div>
               </div>
             ) : (
               <p className="font-mono leading-relaxed">{error}</p>
@@ -201,18 +237,31 @@ export default function AuthScreen({ onSuccess }: AuthScreenProps) {
           </div>
         </div>
 
-        <button
-          onClick={handleGuestLogin}
-          disabled={loading}
-          className="w-full bg-slate-850 hover:bg-slate-850/80 text-slate-200 border border-soft hover:border-sky-500/50 text-xs font-bold py-2 rounded-lg transition duration-200 flex items-center justify-center gap-2 cursor-pointer font-mono"
-        >
-          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-          CONTINUE AS GUEST (FAST SCORES)
-        </button>
+        <div className="space-y-2">
+          <button
+            onClick={handleGuestLogin}
+            disabled={loading}
+            className="w-full bg-[#b71b1b] hover:bg-[#b71b1b]/90 text-slate-200 border border-soft hover:border-sky-500/50 text-xs font-bold py-2 rounded-lg transition duration-200 flex items-center justify-center gap-2 cursor-pointer font-mono"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            CONTINUE AS GUEST (CLOUDFIREBASE)
+          </button>
+
+          <button
+            onClick={handleLocalStorageBypass}
+            disabled={loading}
+            className="w-full bg-amber-600/20 hover:bg-amber-600/35 text-amber-300 border border-amber-650/40 hover:border-amber-400/60 text-xs font-bold py-2 rounded-lg transition duration-200 flex items-center justify-center gap-2 cursor-pointer font-mono"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-yellow-500" />
+            BYPASS REGISTRATION (OFFLINE STORAGE)
+          </button>
+        </div>
         
-        <div className="mt-6 flex items-center gap-1.5 justify-center text-[10px] text-slate-500 font-mono uppercase tracking-wider">
-          <Shield className="w-3.5 h-3.5" />
-          Securely powered by Google Firebase
+        <div className="mt-6 flex flex-col items-center gap-1 justify-center text-[10px] text-slate-500 font-mono uppercase tracking-wider text-center">
+          <div className="flex items-center gap-1.5">
+            <Shield className="w-3.5 h-3.5" />
+            Flexible storage (Local Storage of browser fallback available)
+          </div>
         </div>
       </div>
     </div>

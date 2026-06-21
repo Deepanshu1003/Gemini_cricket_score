@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { firebaseService } from "../firebaseService";
+import { firebaseService, isOfflineMode } from "../firebaseService";
 import { Team, Tournament, Match } from "../types";
 import { collection, onSnapshot, query, doc } from "firebase/firestore";
 import { db } from "../firebase";
@@ -32,37 +32,72 @@ export default function MatchControlCenter({ userId, externalSelectedMatchId, on
   const [errorText, setErrorText] = useState("");
 
   useEffect(() => {
-    // 1. Fetch static lists
+    // 1. Fetch static lists and initial matches
     const fetchDeps = async () => {
       try {
-        const [teamList, tourneyList] = await Promise.all([
+        const [teamList, tourneyList, matchList] = await Promise.all([
           firebaseService.getTeams(),
-          firebaseService.getTournaments()
+          firebaseService.getTournaments(),
+          firebaseService.getMatches()
         ]);
         setTeams(teamList);
         setTournaments(tourneyList);
+        
+        const sorted = matchList.sort((a, b) => {
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        });
+        setMatches(sorted);
+        setLoading(false);
       } catch (e) {
         console.error(e);
       }
     };
     fetchDeps();
 
-    // 2. Real-time Subscription to Matches List (for real-time updates across screens!)
-    const q = query(collection(db, "matches"));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const list: Match[] = [];
-      snapshot.forEach((doc) => {
-        list.push(doc.data() as Match);
-      });
-      // Sort: Scheduled -> Live -> Completed, with newest created first
-      const sorted = list.sort((a, b) => {
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      });
-      setMatches(sorted);
-      setLoading(false);
-    });
+    // 2. Setup subscription
+    if (isOfflineMode()) {
+      const handleLocalUpdate = async () => {
+        try {
+          const list = await firebaseService.getMatches();
+          const sorted = list.sort((a, b) => {
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          });
+          setMatches(sorted);
+          
+          // Also sync teams and tournaments in case of updates
+          const [teamList, tourneyList] = await Promise.all([
+            firebaseService.getTeams(),
+            firebaseService.getTournaments()
+          ]);
+          setTeams(teamList);
+          setTournaments(tourneyList);
+        } catch (err) {
+          console.error(err);
+        }
+      };
 
-    return () => unsubscribe();
+      window.addEventListener("local-db-updated", handleLocalUpdate);
+      return () => {
+        window.removeEventListener("local-db-updated", handleLocalUpdate);
+      };
+    } else {
+      // Real-time Subscription to Matches List (for real-time updates across screens!)
+      const q = query(collection(db, "matches"));
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const list: Match[] = [];
+        snapshot.forEach((doc) => {
+          list.push(doc.data() as Match);
+        });
+        // Sort: Scheduled -> Live -> Completed, with newest created first
+        const sorted = list.sort((a, b) => {
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        });
+        setMatches(sorted);
+        setLoading(false);
+      });
+
+      return () => unsubscribe();
+    }
   }, []);
 
   // Sync to external selection if changed
