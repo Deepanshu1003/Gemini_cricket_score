@@ -1,135 +1,126 @@
-# Century Scorer 🏏
+# CenturyScorer Match Hub 🏏
 
-**Century Scorer** is a high-density, real-time Cricket scoring hub, live match-day manager, tournament organizer, and comprehensive roster center. This application allows scorers to input precise play-by-play actions, trace match sequences, calculate dynamic batsman and bowler stats, organize teams, and coordinate championship events smoothly.
+[![Built with React](https://img.shields.io/badge/Vite-React%2019-0284c7?style=flat&logo=react)](https://react.dev)
+[![Styles with Tailwind](https://img.shields.io/badge/Tailwind-CSS%204.0--alpha-38bdf8?style=flat&logo=tailwindcss)](https://tailwindcss.com)
+[![Database Firestore](https://img.shields.io/badge/Cloud%20Database-Firebase%2012-f59e0b?style=flat&logo=firebase)](https://firebase.google.com)
+[![Mobile Ready Capacitor](https://img.shields.io/badge/Mobile-Capacitor--Ready-10b981?style=flat&logo=capacitor)](https://capacitorjs.com)
 
----
-
-## 🚀 Key Features & Code Updates
-
-- **Active Batsmen & Bowler cockpit panel (New)**:
-  - Added a highly informative live active play section in the scorer's dashboard. Shows the active striker (with a glowing strike indicator) and non-striker showing personal runs and balls faced.
-  - Displays the active bowler's spell including overs, maidens, runs conceded, wickets taken, and economy rates, updating immediately in real-time!
-- **Total Overs Limit Lockdown Safeguards (New)**:
-  - Implemented automatic locks that block any scoring action once an innings is completed (runs target chased, all wickets down, or overs maximum reached).
-  - Replaces buttons with a friendly, instructive block notice guiding the scorer to "Switch Innings" or "Finish Match". This mathematically prevents "total over more than max over" bugs.
-- **Local Storage manual info & refresh ("I") controls (New)**:
-  - Added interactive Info (`Info` / "I" icon) buttons located in the Scorer Header and the Match Control banner.
-  - Allows scorers to manually force key-value cache fetches or invoke storage synchronization in a single click, popping up dynamic feedback notices.
-- **Consecutive Over & Multi-Inning Ball Timelines (Release 1)**:
-  - Fixed the "why over has 12 balls" issue where deliveries from different innings were overlapping.
-  - Implemented the `inningsNum` tag on each recorded delivery, seamlessly filtering the grouped timeline representation to the active batting innings.
-- **Dynamic Session Control & Bypass Alerts (New)**:
-  - Completely resolved the "Logout button not working" issue caused by iframe container blocks on synchronous browser dialogs (e.g. `window.confirm`). Introduced a stateful, interactive double-click verification countdown inside `/src/App.tsx`.
-  - Replaced all blocking browser `alert()` triggers inside `/src/components/MatchScorer.tsx` with high-contrast, responsive inline error and success banner alerts.
-- **Offline Roster & Sandbox Manager (Release 1)**:
-  - Added an **Offline Local Storage Sandbox Inspector** at the top of the Match Control fixtures list. Displays counts for saved matches, teams, and tournament elements, and features an interactive secure purge option to clear local databases cleanly.
-- **Unified Roster Rules**:
-  - **Striker & Non-Striker Uniqueness**: Prevents selecting the same batsman at both ends simultaneously. The dropdown selections automatically filter out the other active batsman.
-  - **Consecutive Over Prevention**: Enforces official cricket rules by blocking a bowler from bowling consecutive overs. Options are dynamically filtered, and validation blocks consecutive over assignments.
-- **Tournament Brackets**: Auto-generated schedules, ongoing group stages, and tables updated on-the-fly.
+**CenturyScorer Match Hub** is an elite, high-fidelity cricket play-by-play scoring, dynamic team management, and tourney coordination panel. Engineered for cricket enthusiasts, local league coaches, and amateur tournament operators, CenturyScorer translates complex cricket laws and telemetry into an intuitive, responsive, and aesthetically stunning user experience.
 
 ---
 
-## 💻 Local Installation & Setup
+## 🎨 Visual Identity & Design Paradigm
 
-If you want to clone this project and run indeed beautifully in your local environment, follow this guide:
+CenturyScorer balances extreme information density with high-contrast, eye-safe aesthetics utilizing:
+- **The Obsidian Cobalt Slate Theme**: Styled with a deep obsidian-colored canvas (`#0b1329`) accented with neon emerald strikers, sapphire dividers, and warm golden badges.
+- **Rhythmic Typography Layouts**: Incorporates clean headers crafted in variable display typography, paired with monospace typography (`Fira Code` / `JetBrains Mono`) for real-time statistical readouts, overs ticks, and batsman strike-rate telemetry.
+- **Fluid Micro-Animations**: Native page switches, batsman swaps, ball dismissals, and timeline updates are driven on dynamic spring-physics scales via `motion`.
 
-### Prerequisite Checklist
-Ensure you have the following installed on your machine:
-* [Node.js](https://nodejs.org/) (Version 18.0.0 or higher is recommended)
-* [npm](https://www.npmjs.com/) (usually comes packaged with Node.js)
+---
 
-### Step 1: Clone the Repository
-Clone the codebase to your local environment:
+## 🚀 Key Architectural Features
+
+### 1. High-Density Live Match Cockpit
+* **In-Play Control Deck**: Scorer keypad with responsive fast-buttons for standard plays (`0`, `1`, `2`, `3`, `4`, `6` runs, and `Wide`, `No Ball`, `Bye`, `Wicket` conditions).
+* **Striker/Bowler Multi-Innings Telemetry**:
+  - Live batsmen cards with active strike highlights, current individual runs, and balls faced.
+  - Active bowler panel displaying spell-by-spell analysis (Overs, Maidens, Runs conceded, Wickets taken, and live economy rate calculations).
+* **Safety Lockdown Mechanics**: Automatic lock systems shut down inputs when an innings targets are achieved, wickets fall completely, or overs limit is reached—mathematically preventing overlapping timelines and over-count overflows.
+
+### 2. Multi-Tiered Championship Coordinator
+* **Dynamic Tournaments**: Seamlessly construct tournaments, define group stages, assign tournament rules, and generate automated fixtures.
+* **Auto-Recalculating League Tables**: Wins, losses, runs-difference, and point totals translate instantly upon live match validation and closure.
+* **Roster Builder**: Build active playing rosters, map dynamic statistics profiles, and select unique batting/bowling combinations with double-selection restrictions strictly in-place.
+
+---
+
+## 🔒 Security & Data Integrity
+
+The application features a strict layered data architectural configuration:
+* **Attribute-Based Access Controls (ABAC)**: Enabled in Firestore (`firestore.rules`). Matches, tournaments, and rosters remain publicly viewable (`read: true`), whereas updates/writes are locked exclusively to the authenticated creator via verification matching.
+* **Local Offline Local Storage Sandbox Inspector**: Includes a dedicated offline panel at the top of the Match List to inspect local cache, monitor stored games/tournaments count, and invoke a safe offline purge of database states.
+* **Synchronous Alert Safety Bypass**: Standard blocks in embedded browser environments are completely resolved via double-click sign-out verification timers and high-contrast in-page toast headers, removing frozen iFrame alerts entirely.
+
+---
+
+## 💻 Technical Setup & Installation
+
+Get CenturyScorer running in your local sandbox in under three minutes:
+
+### Prerequisites
+Make sure you have [Node.js Node v18+](https://nodejs.org) and [npm v10+](https://npmjs.com) installed.
+
+### Step 1: Clone & Navigate
 ```bash
-git clone <repository-url>
+git clone https://github.com/your-username/century-scorer.git
 cd century-scorer
 ```
 
-### Step 2: Install Dependencies
-Run npm install in the project root to download and install all frontend libraries:
+### Step 2: Configure Environment Variables
+Create a `.env` file in the project root (or replicate the `.env.example` structure):
+```bash
+cp .env.example .env
+```
+Populate your Firebase configuration details:
+```env
+VITE_FIREBASE_API_KEY="your-api-key"
+VITE_FIREBASE_AUTH_DOMAIN="your-app.firebaseapp.com"
+VITE_FIREBASE_PROJECT_ID="your-project-id"
+VITE_FIREBASE_STORAGE_BUCKET="your-app.firebasestorage.app"
+VITE_FIREBASE_MESSAGING_SENDER_ID="your-sender-id"
+VITE_FIREBASE_APP_ID="your-app-id"
+VITE_FIREBASE_DATABASE_ID="default"
+```
+
+### Step 3: Install Frontend Dependencies
 ```bash
 npm install
 ```
 
-### Step 3: Run the Development Server
-Launch the high-speed Vite development server locally:
+### Step 4: Run Development Environment
 ```bash
 npm run dev
 ```
-Once the dev server starts, open your browser and head to:
-👉 `http://localhost:3000` (or the port specified in terminal output)
+Open [http://localhost:3000](http://localhost:3000) on your desktop browser to watch the real-time scoring engine in action!
 
-### Step 4: Build for Production
-To bundle and optimize the application for production hosting/deployment:
+### Step 5: Build optimized production bundle
 ```bash
 npm run build
 ```
+Static builds compile cleanly into the `/dist` output folder.
 
 ---
 
-## 📁 Repository Structure
+## 📱 Mobile Native Build Guide
 
-```tree
-├── firebase-applet-config.json    # Contains app-specific Firebase API keys
-├── firebase-blueprint.json        # Data schemas / intermediate blueprint configuration
-├── firestore.rules                # Hardened attribute-based Firestore security rules
-├── package.json                   # Project scripts and library dependencies
-├── src/
-│   ├── App.tsx                    # Main app coordinator and tab manager
-│   ├── firebase.ts                # Firebase initializing file (Auth / Firestore)
-│   ├── index.css                  # Tailwinds CSS directives and font structures
-│   ├── components/                # Specialized modular UI components
-│   │   ├── AuthScreen.tsx         # Secure user onboarding & error guides (includes local bypass button)
-│   │   ├── MatchControlCenter.tsx # Live match planner and setup wizard
-│   │   ├── MatchScorer.tsx        # High-precision ball scorer keypad & grouped over scorecards
-│   │   ├── PlayerStats.tsx        # Dynamic individual career statistics
-│   │   ├── TeamsList.tsx          # Team profiles & rosters
-│   │   └── TournamentManager.tsx  # Dynamic brackets and tournament coordinators
+### Progressive Web App (PWA)
+CenturyScorer includes an fully styled Manifest file (`manifest.json`):
+1. Navigate to the hosting link on your Android or iOS device in **Google Chrome / Safari**.
+2. Tap the browser menu and select **"Add to Home Screen"** or **"Install App"**.
+3. Launch CenturyScorer natively with standard launch icon, splash card animations, dynamic landscape lockers, and standalone full-screen viewports.
+
+### Capacitor Mobile Integration
+The project is engineered to work cleanly with **CapacitorJS** (configuration files included inside the codebase structure). To sync static assets and run natively matching mobile apps:
+```bash
+# Add native android dependencies
+npm install @capacitor/core @capacitor/cli
+
+# Sync compiled codes to Capacitor native Android layout folder
+npx cap sync
+
+# Open instantly inside Android Studio for Gradle bundles or manual compilations
+npx cap open android
 ```
 
 ---
 
-## 📱 Android & Mobile Deployment Solutions
+## 👥 Contributing
 
-We have configured **two powerful options** to run and install this application natively on Android devices:
+We love open-source contributions! Follow these steps to submit edits:
+1. Fork the Project Repository.
+2. Create your Feature Branch (`git checkout -b feature/glorious-cricket-feature`).
+3. Commit changes (`git commit -m "feat: Add dynamic super-over ruleset"`).
+4. Push to Branch (`git push origin feature/glorious-cricket-feature`).
+5. Open a Pull Request detailing your enhancements.
 
-### Option A: Native Android App (via Capacitor)
-The project comes with a fully initialized **Capacitor Android native app wrapper** inside the `/android` folder. This is a real Android Studio project! 
-
-To run or build it locally:
-1. Make sure you have [Android Studio](https://developer.android.com/studio) installed on your machine.
-2. Build the web app assets first:
-   ```bash
-   npm run build
-   ```
-3. Sync the compiled static assets into the native Android folder:
-   ```bash
-   npx cap sync
-   ```
-4. Open the project in Android Studio:
-   ```bash
-   npx cap open android
-   ```
-5. From Android Studio, you can immediately:
-   - Run the app on an Android Emulator or your connected physical phone!
-   - Select **Build > Build Bundle(s) / APK(s) > Build APK(s)** to generate a standalone `.apk` you can share and install on on-field devices.
-
----
-
-### Option B: Progressive Web App (PWA) Install
-The app is engineered with a **Chrome-compliant Web App Manifest** (`manifest.json`):
-1. Simply deploy the web application or host it on your local network/cloud.
-2. Open the application's URL in **Google Chrome** on your Android device.
-3. Tap the **three-dot menu icon** in the top-right corner.
-4. Select **"Add to Home Screen"** or **"Install App"**.
-5. The CenturyScorer will be installed directly on your Android phone's launcher, featuring an immersive full-screen design, its own splash screen, adaptive orientation support, and local caching!
-
----
-
-## 🔒 Security Hardening
-
-The application is secured with custom Zero-Trust Firestore security rules in `firestore.rules` to prevent identity spoofing and payload poisoning:
-- **Default Deny Rule**: All paths default to block unless explicitly matched.
-- **Identity Integrity**: All profile writes must match the authenticated `request.auth.uid`.
-- **Public Visibility / Private Scoring**: Matches, Tournaments, and Rosters are viewable publicly (`allow read: if true`), but writing/updating controls are restricted to the verified creator.
+Designed with 🏏 for cricket organizers world-wide.

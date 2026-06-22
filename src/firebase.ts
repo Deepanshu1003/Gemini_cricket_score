@@ -2,14 +2,14 @@ import { initializeApp } from "firebase/app";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously } from "firebase/auth";
 import { initializeFirestore } from "firebase/firestore";
 
-// Config parsed from firebase-applet-config.json
+// Config parsed from compile-time injected environment variables
 const firebaseConfig = {
-  apiKey: "AIzaSyByQoT4JfI34KXMbN7Mtg8kYPJfXHw9Pnc",
-  authDomain: "lucid-lodge-c8kj5.firebaseapp.com",
-  projectId: "lucid-lodge-c8kj5",
-  storageBucket: "lucid-lodge-c8kj5.firebasestorage.app",
-  messagingSenderId: "648219956815",
-  appId: "1:648219956815:web:73fe3b87918b51cf6dbc3a"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || ""
 };
 
 // Initialize app
@@ -17,7 +17,7 @@ const app = initializeApp(firebaseConfig);
 
 // Initialize Firestore with the specific custom database ID provided in config
 export const db = initializeFirestore(app, {
-  databaseId: "ai-studio-6e6ed0d5-37a8-47f5-9daf-2d62b65cbea1"
+  databaseId: import.meta.env.VITE_FIREBASE_DATABASE_ID || "default"
 } as any);
 
 // Initialize Auth
